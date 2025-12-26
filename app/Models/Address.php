@@ -11,12 +11,7 @@ class Address extends Model
         'label',
         'full_name',
         'phone',
-        'address_line_1',
-        'address_line_2',
-        'city',
-        'state',
-        'postal_code',
-        'country',
+        'address',
         'is_default',
     ];
 
@@ -39,15 +34,6 @@ class Address extends Model
 
     public function getFullAddressAttribute(): string
     {
-        $parts = [
-            $this->address_line_1,
-            $this->address_line_2,
-            $this->city,
-            $this->state,
-            $this->postal_code,
-            $this->country,
-        ];
-
-        return implode(', ', array_filter($parts));
+        return $this->address;
     }
 }

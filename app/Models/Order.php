@@ -10,14 +10,13 @@ class Order extends Model
     protected $fillable = [
         'user_id',
         'address_id',
-        'order_number',
+        'uuid',
         'status',
         'subtotal',
         'tax',
         'shipping',
         'total',
         'stripe_payment_intent_id',
-        'payment_status',
         'notes',
     ];
 
@@ -57,8 +56,8 @@ class Order extends Model
         parent::boot();
 
         static::creating(function ($order) {
-            if (empty($order->order_number)) {
-                $order->order_number = 'ORD-' . strtoupper(uniqid());
+            if (empty($order->uuid)) {
+                $order->uuid = (string) \Illuminate\Support\Str::uuid();
             }
         });
     }

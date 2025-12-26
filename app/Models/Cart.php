@@ -10,7 +10,12 @@ class Cart extends Model
     protected $fillable = [
         'user_id',
         'visitor_id',
+        'discount',
+        'tax',
     ];
+
+    protected $with = ['items'];
+    protected $appends = ['subtotal', 'total'];
 
     public function user()
     {
@@ -27,20 +32,22 @@ class Cart extends Model
         return $this->hasMany(CartItem::class);
     }
 
-    protected function subtotal(): Attribute
+    protected function casts(): array
     {
-        return Attribute::make(
-            get: fn () => $this->items->sum(function ($item) {
-                return $item->product->price * $item->quantity;
-            })
-        );
+        return [
+            'discount' => 'decimal:2',
+            'tax' => 'decimal:2',
+        ];
     }
 
-    protected function total(): Attribute
+    protected function getSubTotalAttribute()
     {
-        return Attribute::make(
-            get: fn () => $this->subtotal
-        );
+        return $this->items->sum('total');
+    }
+
+    protected function getTotalAttribute()
+    {
+        return $this->sub_total - $this->discount + $this->tax;
     }
 
     public function itemCount(): int

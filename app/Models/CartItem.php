@@ -11,12 +11,17 @@ class CartItem extends Model
         'cart_id',
         'product_id',
         'quantity',
+        'discount',
     ];
+
+    protected $with = ['product'];
+    protected $appends = ['total'];
 
     protected function casts(): array
     {
         return [
             'quantity' => 'integer',
+            'discount' => 'decimal:2',
         ];
     }
 
@@ -30,10 +35,8 @@ class CartItem extends Model
         return $this->belongsTo(Product::class);
     }
 
-    protected function itemTotal(): Attribute
+    protected function getTotalAttribute()
     {
-        return Attribute::make(
-            get: fn () => $this->product->price * $this->quantity
-        );
+        return $this->product->price * $this->quantity - $this->discount;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Product;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -23,14 +24,14 @@ class ProductSeeder extends Seeder
             [
                 'name' => 'Vitamin C Brightening Cream',
                 'description' => 'Brightens and evens skin tone with powerful vitamin C and natural extracts.',
-                'price' => 38.50,
+                'price' => 38.5,
                 'stock_quantity' => 30,
                 'stock_threshold' => 5,
             ],
             [
                 'name' => 'Retinol Night Treatment',
                 'description' => 'Advanced anti-aging night treatment with retinol to reduce fine lines and wrinkles.',
-                'price' => 52.00,
+                'price' => 52.0,
                 'stock_quantity' => 25,
                 'stock_threshold' => 8,
             ],
@@ -44,7 +45,7 @@ class ProductSeeder extends Seeder
             [
                 'name' => 'Nourishing Eye Cream',
                 'description' => 'Rich eye cream that reduces dark circles, puffiness, and fine lines around the eyes.',
-                'price' => 42.00,
+                'price' => 42.0,
                 'stock_quantity' => 40,
                 'stock_threshold' => 10,
             ],
@@ -58,7 +59,7 @@ class ProductSeeder extends Seeder
             [
                 'name' => 'Exfoliating Toner',
                 'description' => 'Gentle exfoliating toner with AHA/BHA to refine pores and improve skin texture.',
-                'price' => 32.50,
+                'price' => 32.5,
                 'stock_quantity' => 60,
                 'stock_threshold' => 12,
             ],
@@ -72,7 +73,7 @@ class ProductSeeder extends Seeder
             [
                 'name' => 'Anti-Aging Serum',
                 'description' => 'Powerful anti-aging serum with peptides and antioxidants for youthful-looking skin.',
-                'price' => 58.00,
+                'price' => 58.0,
                 'stock_quantity' => 2,
                 'stock_threshold' => 3,
             ],
@@ -86,7 +87,7 @@ class ProductSeeder extends Seeder
         ];
 
         foreach ($products as $product) {
-            \App\Models\Product::create($product);
+            Product::create($product);
         }
     }
 }

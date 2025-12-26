@@ -2,20 +2,22 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Hash;
 
-class AdminUserSeeder extends Seeder
+class UserSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        \App\Models\User::create([
+        User::create([
             'name' => 'Admin User',
             'email' => 'admin@trustfactory.com',
-            'password' => bcrypt('password'),
+            'password' => Hash::make('password'),
             'is_admin' => true,
             'email_verified_at' => now(),
         ]);

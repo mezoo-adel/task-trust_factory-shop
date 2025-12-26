@@ -15,6 +15,9 @@ class StockTransaction extends Model
         'new_stock',
         'reason',
         'performed_by',
+        'is_reserved',
+        'is_returned',
+        'is_damaged',
     ];
 
     protected function casts(): array
@@ -23,6 +26,9 @@ class StockTransaction extends Model
             'quantity' => 'integer',
             'previous_stock' => 'integer',
             'new_stock' => 'integer',
+            'is_reserved' => 'boolean',
+            'is_returned' => 'boolean',
+            'is_damaged' => 'boolean',
         ];
     }
 
