@@ -1,0 +1,55 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Product;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
+
+class ProductController extends Controller
+{
+    public function index(Request $request): Response
+    {
+        $query = Product::where('is_active', true);
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        switch ($request->input('sort', 'name')) {
+            case 'price_asc':
+                $query->orderBy('price', 'asc');
+                break;
+            case 'price_desc':
+                $query->orderBy('price', 'desc');
+                break;
+            case 'newest':
+                $query->orderBy('created_at', 'desc');
+                break;
+            default:
+                $query->orderBy('name', 'asc');
+        }
+
+        $products = $query->get();
+
+        return Inertia::render('Products/Index', [
+            'products' => $products,
+            'filters' => [
+                'search' => $request->input('search'),
+                'sort' => $request->input('sort', 'name'),
+            ],
+        ]);
+    }
+
+    public function show(Product $product): Response
+    {
+        return Inertia::render('Products/Show', [
+            'product' => $product,
+        ]);
+    }
+}

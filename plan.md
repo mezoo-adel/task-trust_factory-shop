@@ -250,7 +250,6 @@ Indexes:
 - id (bigint, PK)
 - order_id (bigint, FK)
 - product_id (bigint, FK)
-- product_name (string) // snapshot
 - product_price (decimal, 10,2) // snapshot
 - quantity (integer)
 - subtotal (decimal, 10,2) // calculated: price * quantity
@@ -576,27 +575,238 @@ Upload (Polymorphic)
 ### **Phase 5: Frontend Development** (Days 10-14)
 
 #### 5.1 Public Pages (Vue Components)
-- [ ] Homepage (featured products, hero section)
-- [ ] Product listing page (grid, search, filters)
-- [ ] Product detail page (images, description, add to cart)
-- [ ] Cart page (item list, quantities, totals)
-- [ ] Checkout page (address form, payment)
-- [ ] Order confirmation page
-- [ ] User dashboard (orders, addresses)
+
+##### **Homepage** (`/resources/js/pages/Home.vue`) ✅
+- Hero section with gradient background
+- Featured products grid (4 columns)
+- Features section (Natural Ingredients, Cruelty Free, Premium Quality)
+- Call-to-action section
+- Responsive design for mobile/tablet/desktop
+
+##### **Products Listing** (`/resources/js/pages/Products/Index.vue`) ✅
+- Product grid with cards (responsive: 1/2/3/4 columns)
+- Search functionality with real-time filtering
+- Sort options (Name, Price Low/High, Newest)
+- Product cards showing:
+  - Product image placeholder
+  - Name, description (truncated)
+  - Price
+  - Stock status
+  - "View Details" button
+- Empty state for no results
+- Filter controls (search, sort, clear)
+
+##### **Product Detail** (`/resources/js/pages/Products/Show.vue`) ✅
+- Large product image display
+- Product information (name, price, description)
+- Stock status indicator with low stock warning
+- Quantity selector with +/- buttons
+- "Add to Cart" button with loading state
+- Total price calculation
+- Back to products navigation
+- Out of stock state with notification option
+- Toast notifications for cart actions
+
+##### **Shopping Cart** (`/resources/js/pages/Cart/Index.vue`) ✅
+- Cart items list with:
+  - Product thumbnail
+  - Product name (linked to detail page)
+  - Price per unit
+  - Quantity controls (+/-, direct input)
+  - Remove item button
+  - Item total with discount display
+- Order summary sidebar:
+  - Subtotal
+  - Discount (if applicable)
+  - Tax
+  - Shipping (Free)
+  - Grand total
+- "Proceed to Checkout" button
+- "Continue Shopping" button
+- "Clear Cart" functionality
+- Empty cart state with call-to-action
+- Stock validation warnings
+- Sticky order summary on desktop
+
+##### **Orders List** (`/resources/js/pages/Orders/Index.vue`) ✅
+- Requires authentication
+- Order cards showing:
+  - Order UUID (truncated)
+  - Order date
+  - Status badge with color coding
+  - Total amount
+  - Order items preview
+  - Order summary (subtotal, tax, shipping, total)
+  - "View Details" and "Reorder" buttons
+- Empty state for users with no orders
+- Status colors:
+  - Pending: Gray
+  - Paid: Green
+  - Processing: Blue
+  - Shipped: Purple
+  - Delivered: Green
+  - Cancelled: Red
+
+##### **Order Detail** (`/resources/js/pages/Orders/Show.vue`) ✅
+- Full order information display
+- Order items section with product details
+- Shipping address card
+- Payment information (Stripe Payment Intent ID)
+- Order notes (if any)
+- Order summary sidebar (sticky)
+- Status badge
+- Track shipment button (for shipped orders)
+- Back to orders navigation
+- Responsive layout (2-column on desktop, stacked on mobile)
+
+##### **Checkout Page** (To be implemented)
+- [ ] Guest/User information form
+- [ ] Address selection/creation
+- [ ] Order review section
+- [ ] Stripe payment integration
+- [ ] Terms and conditions checkbox
+- [ ] Place order button
+- [ ] Loading states during payment processing
+
+##### **Order Confirmation** (To be implemented)
+- [ ] Success message
+- [ ] Order summary
+- [ ] Order number display
+- [ ] Next steps information
+- [ ] Continue shopping button
+
+##### **User Dashboard** (To be implemented)
+- [ ] Overview of recent orders
+- [ ] Saved addresses management
+- [ ] Profile information
+- [ ] Order history quick access
 
 #### 5.2 Admin Panel (Vue Components)
-- [ ] Admin dashboard (analytics, stats)
-- [ ] Product management (list, create, edit, delete)
-- [ ] Product image upload interface
-- [ ] Order management (list, detail, status update)
-- [ ] Inventory management (stock adjustments)
-- [ ] Stock transaction history view
 
-#### 5.3 Shared Components
-- [ ] Navigation (public + admin)
-- [ ] Cart icon with item count
-- [ ] Product card component
-- [ ] Pagination component
+##### **Admin Dashboard** (To be implemented)
+- [ ] Sales statistics cards
+  - [ ] Today's revenue
+  - [ ] Total orders (today/week/month)
+  - [ ] Low stock products count
+  - [ ] Total products count
+- [ ] Recent orders table
+- [ ] Low stock alerts section
+- [ ] Sales chart (optional)
+- [ ] Quick actions (Add Product, View Orders, Manage Inventory)
+
+##### **Product Management** (To be implemented)
+- [ ] Products list table with:
+  - [ ] Product image thumbnail
+  - [ ] Name, price, stock
+  - [ ] Status (active/inactive)
+  - [ ] Edit/Delete actions
+- [ ] Create product form
+- [ ] Edit product form
+- [ ] Image upload interface (drag & drop)
+- [ ] Multiple images support (polymorphic Upload model)
+- [ ] Stock threshold configuration
+- [ ] Product activation toggle
+
+##### **Order Management** (To be implemented)
+- [ ] Orders list with filters (status, date range)
+- [ ] Order detail view (admin version)
+- [ ] Status update functionality
+- [ ] Order notes/comments
+- [ ] Print invoice option
+- [ ] Bulk actions (export, status update)
+
+##### **Inventory Management** (To be implemented)
+- [ ] Stock overview table
+- [ ] Low stock products highlighted
+- [ ] Manual stock adjustment form
+- [ ] Stock transaction history per product
+- [ ] Bulk stock import (CSV)
+- [ ] Stock alerts configuration
+
+##### **Stock Transactions** (To be implemented)
+- [ ] Transaction history table
+- [ ] Filters (product, operation type, date)
+- [ ] Transaction details (quantity, reason, performed by)
+- [ ] Reserved/Returned/Damaged flags display
+
+#### 5.3 Shared Components & Layouts
+
+##### **AppLayout** (Existing from Breeze)
+- Main application layout wrapper
+- Navigation header with:
+  - Logo/Brand
+  - Main navigation links
+  - Cart icon with item count badge
+  - User menu (authenticated)
+  - Login/Register (guest)
+- Footer section
+- Mobile responsive menu
+
+##### **Reusable Components** (To be implemented)
+- [ ] **ProductCard**: Standardized product display
+- [ ] **StatusBadge**: Order status with colors
+- [ ] **PriceDisplay**: Formatted currency display
+- [ ] **QuantitySelector**: +/- buttons with input
+- [ ] **LoadingSpinner**: Loading states
+- [ ] **EmptyState**: No data placeholders
+- [ ] **ConfirmDialog**: Action confirmations
+- [ ] **ImageUploader**: Drag & drop image upload
+- [ ] **Pagination**: Page navigation
+- [ ] **SearchInput**: Search with debouncing
+- [ ] **FilterPanel**: Advanced filtering UI
+
+##### **UI Components** (Already available from shadcn/ui)
+- ✅ Button
+- ✅ Card (Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter)
+- ✅ Input
+- ✅ Label
+- ✅ Select (Select, SelectTrigger, SelectValue, SelectContent, SelectItem)
+- ✅ Badge
+- ✅ Toast (useToast composable)
+- ✅ Dialog
+- ✅ Dropdown Menu
+- ✅ Sheet (mobile menu)
+- ✅ Separator
+- ✅ Skeleton (loading states)
+
+#### 5.4 Frontend Features Implementation
+
+##### **Cart Management**
+- Real-time cart updates via Inertia
+- Optimistic UI updates
+- Cart persistence (database-backed)
+- Guest cart → User cart transfer on login
+- Cart item count in header badge
+
+##### **Product Search & Filtering**
+- Client-side search with debouncing
+- Server-side filtering for large datasets
+- Sort options (name, price, date)
+- Category filtering (if categories added)
+- Price range filtering (optional)
+
+##### **Responsive Design**
+- Mobile-first approach
+- Breakpoints: sm (640px), md (768px), lg (1024px), xl (1280px)
+- Touch-friendly controls on mobile
+- Hamburger menu for mobile navigation
+- Sticky cart summary on desktop
+
+##### **User Experience Enhancements**
+- Loading states for all async operations
+- Toast notifications for user actions
+- Form validation with error messages
+- Confirmation dialogs for destructive actions
+- Breadcrumb navigation
+- Back buttons on detail pages
+- Empty states with helpful CTAs
+
+##### **Performance Optimizations**
+- Lazy loading for images
+- Code splitting for routes
+- Debounced search inputs
+- Optimistic UI updates
+- Cached data where appropriate
 - [ ] Search bar component
 - [ ] Modal components
 - [ ] Form components (input, select, textarea)

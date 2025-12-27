@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use App\Enums\OrderStatusEnum;
+use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
 {
+    use HasUuid;
     protected $fillable = [
         'user_id',
         'address_id',
@@ -49,16 +51,5 @@ class Order extends Model
     public function stockTransactions()
     {
         return $this->hasMany(StockTransaction::class);
-    }
-
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($order) {
-            if (empty($order->uuid)) {
-                $order->uuid = (string) \Illuminate\Support\Str::uuid();
-            }
-        });
     }
 }
