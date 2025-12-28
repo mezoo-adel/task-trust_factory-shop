@@ -24,12 +24,17 @@ const validationErrors = ref<Record<string, string>>({});
 const touched = ref<Record<string, boolean>>({});
 
 const isGuest = computed(() => !page.props.auth?.user);
+const showAddressForm = ref(false);
+const selectedAddressId = ref<number | null>(
+    props.addresses.find(a => a.is_default)?.id || null
+);
 
 const form = ref({
-    full_name: props.addresses.find(a => a.is_default)?.full_name || '',
+    address_id: selectedAddressId.value,
+    full_name: '',
     email: page.props.auth?.user?.email || '',
-    phone: props.addresses.find(a => a.is_default)?.phone || '',
-    address: props.addresses.find(a => a.is_default)?.address || '',
+    phone: '',
+    address: '',
     name: '',
     password: '',
     password_confirmation: '',
@@ -144,6 +149,20 @@ const calculateTotal = () => {
     return subtotal + calculateTax() + calculateShipping();
 };
 
+const selectAddress = (addressId: number) => {
+    selectedAddressId.value = addressId;
+    form.value.address_id = addressId;
+    showAddressForm.value = false;
+};
+
+const toggleAddressForm = () => {
+    showAddressForm.value = !showAddressForm.value;
+    if (showAddressForm.value) {
+        selectedAddressId.value = null;
+        form.value.address_id = null;
+    }
+};
+
 const validateForm = (): boolean => {
     // Mark all fields as touched
     Object.keys(form.value).forEach(key => {
@@ -153,11 +172,20 @@ const validateForm = (): boolean => {
     // Validate all fields
     if (isGuest.value) {
         validateField('name', form.value.name);
+        validateField('full_name', form.value.full_name);
+        validateField('phone', form.value.phone);
+        validateField('address', form.value.address);
+    } else {
+        // For authenticated users
+        if (showAddressForm.value || !selectedAddressId.value) {
+            validateField('full_name', form.value.full_name);
+            validateField('phone', form.value.phone);
+            validateField('address', form.value.address);
+        }
     }
-    validateField('full_name', form.value.full_name);
+    
     validateField('email', form.value.email);
-    validateField('phone', form.value.phone);
-    validateField('address', form.value.address);
+    
     if (isGuest.value) {
         validateField('password', form.value.password);
         validateField('password_confirmation', form.value.password_confirmation);
@@ -218,6 +246,58 @@ const submitCheckout = async () => {
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <!-- Checkout Form -->
                     <div class="lg:col-span-2">
+                        <!-- Address Selection for Authenticated Users -->
+                        <Card v-if="!isGuest && addresses.length > 0" class="mb-6">
+                            <CardHeader>
+                                <CardTitle>Shipping Address</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div class="space-y-4">
+                                    <!-- Existing Addresses -->
+                                    <div class="grid gap-4 md:grid-cols-2">
+                                        <div
+                                            v-for="address in addresses"
+                                            :key="address.id"
+                                            @click="selectAddress(address.id)"
+                                            :class="[
+                                                'border-2 rounded-lg p-4 cursor-pointer transition-all',
+                                                selectedAddressId === address.id
+                                                    ? 'border-purple-600 bg-purple-50'
+                                                    : 'border-gray-200 hover:border-purple-300'
+                                            ]"
+                                        >
+                                            <div class="flex items-start">
+                                                <input
+                                                    type="radio"
+                                                    :checked="selectedAddressId === address.id"
+                                                    class="mt-1 mr-3"
+                                                    readonly
+                                                />
+                                                <div class="flex-1">
+                                                    <p class="font-semibold">{{ address.full_name }}</p>
+                                                    <p class="text-sm text-gray-600 mt-1">{{ address.phone }}</p>
+                                                    <p class="text-sm text-gray-600 mt-1">{{ address.address }}</p>
+                                                    <span v-if="address.is_default" class="inline-block mt-2 text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">
+                                                        Default
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Add New Address Button -->
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        class="w-full"
+                                        @click="toggleAddressForm"
+                                    >
+                                        {{ showAddressForm ? 'Cancel' : '+ Add New Address' }}
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
+
                         <!-- Customer Information -->
                         <Card>
                             <CardHeader>
@@ -240,7 +320,7 @@ const submitCheckout = async () => {
                                                 @blur="validateField('name', form.name)"
                                             />
                                             <InputError 
-                                                :message="(apiErrors.name as string) || (touched.name ? validationErrors.name : '')" 
+                                                :message="apiErrors.name || (touched.name ? validationErrors.name : '')" 
                                                 class="mt-1" 
                                             />
                                         </div>
@@ -249,24 +329,6 @@ const submitCheckout = async () => {
                                     <!-- Contact Information -->
                                     <div class="grid gap-4 md:grid-cols-2">
                                         <div>
-                                            <Label for="phone">Phone Number</Label>
-                                            <Input
-                                                id="phone"
-                                                v-model="form.phone"
-                                                type="tel"
-                                                placeholder="+1 (555) 123-4567"
-                                                autocomplete="tel"
-                                                :aria-invalid="!!(apiErrors.phone || (touched.phone && validationErrors.phone))"
-                                                class="mt-1.5"
-                                                @blur="validateField('phone', form.phone)"
-                                            />
-                                            <InputError 
-                                                :message="(apiErrors.phone as string) || (touched.phone ? validationErrors.phone : '')" 
-                                                class="mt-1" 
-                                            />
-                                        </div>
-
-                                        <div>
                                             <Label for="email">Email Address</Label>
                                             <Input
                                                 id="email"
@@ -274,18 +336,19 @@ const submitCheckout = async () => {
                                                 type="email"
                                                 placeholder="john@example.com"
                                                 autocomplete="email"
-                                                :aria-invalid="!!((apiErrors.email as string) || (touched.email && validationErrors.email))"
+                                                :aria-invalid="!!(apiErrors.email || (touched.email && validationErrors.email))"
                                                 class="mt-1.5"
                                                 @blur="validateField('email', form.email)"
                                             />
                                             <InputError 
-                                                :message="(apiErrors.email as string) || (touched.email ? validationErrors.email : '')" 
+                                                :message="apiErrors.email || (touched.email ? validationErrors.email : '')" 
                                                 class="mt-1" 
                                             />
                                         </div>
                                     </div>
 
-                                    <div class="grid gap-4 md:grid-cols-2">
+                                    <!-- Address Form (for guests or when adding new address) -->
+                                    <div v-if="isGuest || showAddressForm" class="grid gap-4 md:grid-cols-2">
                                         <div>                                           
                                              <Label for="full_name">Shipping Name</Label>
                                             <Input
@@ -299,7 +362,24 @@ const submitCheckout = async () => {
                                                 @blur="validateField('full_name', form.full_name)"
                                             />
                                             <InputError 
-                                                :message="(apiErrors.full_name as string) || (touched.full_name ? validationErrors.full_name : '')" 
+                                                :message="apiErrors.full_name || (touched.full_name ? validationErrors.full_name : '')" 
+                                                class="mt-1" 
+                                            />
+                                        </div>
+                                        <div>
+                                            <Label for="phone_new">Phone Number</Label>
+                                            <Input
+                                                id="phone_new"
+                                                v-model="form.phone"
+                                                type="tel"
+                                                placeholder="+1 (555) 123-4567"
+                                                autocomplete="tel"
+                                                :aria-invalid="!!(apiErrors.phone || (touched.phone && validationErrors.phone))"
+                                                class="mt-1.5"
+                                                @blur="validateField('phone', form.phone)"
+                                            />
+                                            <InputError 
+                                                :message="apiErrors.phone || (touched.phone ? validationErrors.phone : '')" 
                                                 class="mt-1" 
                                             />
                                         </div>
@@ -312,12 +392,12 @@ const submitCheckout = async () => {
                                                 type="text"
                                                 placeholder="123 Main St, City, State, ZIP Code"
                                                 autocomplete="street-address"
-                                                :aria-invalid="!!((apiErrors.address as string) || (touched.address && validationErrors.address))"
+                                                :aria-invalid="!!(apiErrors.address || (touched.address && validationErrors.address))"
                                                 class="mt-1.5"
                                                 @blur="validateField('address', form.address)"
                                             />
                                             <InputError 
-                                                :message="(apiErrors.address as string) || (touched.address ? validationErrors.address : '')" 
+                                                :message="apiErrors.address || (touched.address ? validationErrors.address : '')" 
                                                 class="mt-1" 
                                             />
                                         </div>
@@ -338,7 +418,7 @@ const submitCheckout = async () => {
                                                 @blur="validateField('password', form.password)"
                                             />
                                             <InputError 
-                                                :message="(apiErrors.password as string) || (touched.password ? validationErrors.password : '')" 
+                                                :message="apiErrors.password || (touched.password ? validationErrors.password : '')" 
                                                 class="mt-1" 
                                             />
                                         </div>
@@ -351,12 +431,12 @@ const submitCheckout = async () => {
                                                 type="password"
                                                 placeholder="Confirm your password"
                                                 autocomplete="new-password"
-                                                :aria-invalid="!!((apiErrors.password_confirmation as string) || (touched.password_confirmation && validationErrors.password_confirmation))"
+                                                :aria-invalid="!!(apiErrors.password_confirmation || (touched.password_confirmation && validationErrors.password_confirmation))"
                                                 class="mt-1.5"
                                                 @blur="validateField('password_confirmation', form.password_confirmation)"
                                             />
                                             <InputError 
-                                                :message="(apiErrors.password_confirmation as string) || (touched.password_confirmation ? validationErrors.password_confirmation : '')" 
+                                                :message="apiErrors.password_confirmation || (touched.password_confirmation ? validationErrors.password_confirmation : '')" 
                                                 class="mt-1" 
                                             />
                                         </div>

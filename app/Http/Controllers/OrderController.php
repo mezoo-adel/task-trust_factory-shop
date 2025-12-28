@@ -36,4 +36,20 @@ class OrderController extends Controller
             'order' => $order,
         ]);
     }
+
+    public function cancel(Order $order)
+    {
+        // Ensure user owns this order
+        if ($order->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        if (!$order->cancel()) {
+            return back()->withErrors([
+                'error' => 'This order cannot be cancelled.'
+            ]);
+        }
+
+        return back()->with('success', 'Order cancelled successfully.');
+    }
 }

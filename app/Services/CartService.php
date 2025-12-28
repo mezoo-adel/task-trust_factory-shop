@@ -12,10 +12,22 @@ class CartService
 {
     /**
      * Get or create a cart for the current user or guest
+     * 
+     * For authenticated users: Retrieves existing cart by user_id or creates new one
+     * For guests: Retrieves existing cart by visitor fingerprint or creates new one
+     * 
+     * Cart persistence is guaranteed:
+     * - User carts: Linked to user_id, persist across sessions
+     * - Guest carts: Linked to visitor fingerprint (stored in session), persist across page visits
+     * 
+     * @param int|null $userId Authenticated user ID
+     * @param string|null $fingerprint Visitor fingerprint (from session)
+     * @return Cart
      */
     public function getOrCreateCart(?int $userId = null, ?string $fingerprint = null): Cart
     {
         if ($userId) {
+            // Authenticated user: get or create cart by user_id
             return Cart::firstOrCreate(
                 ['user_id' => $userId],
                 ['discount' => 0, 'tax' => 0]
@@ -23,7 +35,11 @@ class CartService
         }
 
         if ($fingerprint) {
+            // Guest user: get or create visitor, then get or create cart
+            // This ensures cart is retrieved if it already exists for this fingerprint
             $visitor = Visitor::firstOrCreate(['fingerprint' => $fingerprint]);
+            
+            // firstOrCreate will retrieve existing cart if visitor already has one
             return Cart::firstOrCreate(
                 ['visitor_id' => $visitor->id],
                 ['discount' => 0, 'tax' => 0]
@@ -31,6 +47,24 @@ class CartService
         }
 
         throw new \InvalidArgumentException('Either userId or fingerprint must be provided');
+    }
+
+    /**
+     * Get existing cart by visitor fingerprint (without creating if not exists)
+     * Useful for checking if cart exists before operations
+     * 
+     * @param string $fingerprint Visitor fingerprint
+     * @return Cart|null
+     */
+    public function getCartByFingerprint(string $fingerprint): ?Cart
+    {
+        $visitor = Visitor::where('fingerprint', $fingerprint)->first();
+        
+        if (!$visitor) {
+            return null;
+        }
+
+        return Cart::where('visitor_id', $visitor->id)->first();
     }
 
     /**
@@ -72,11 +106,12 @@ class CartService
     }
 
     /**
-     * Clear all items from a cart
+     * Clear the cart and all items within
      */
     public function clearCart(Cart $cart): void
     {
         $cart->items()->delete();
+        $cart->delete();
     }
 
     /**

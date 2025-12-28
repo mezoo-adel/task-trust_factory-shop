@@ -99,7 +99,7 @@ A modern, full-featured e-commerce platform for selling cosmetics products. The 
 ```
 1. Guest visits site
    ↓
-2. Create Visitor record (fingerprint from browser_data + IP + device_info)
+2. Create Visitor record (fingerprint from frontend contains browser_data + IP + device_info)
    ↓
 3. Guest adds products to cart (linked to Visitor)
    ↓
@@ -115,7 +115,7 @@ A modern, full-featured e-commerce platform for selling cosmetics products. The 
    ↓
 9. Create Order + OrderItems (store calculated values)
    ↓
-10. Delete CartItems
+10. Delete The cart and its CartItems
     ↓
 11. Stock updated via Stripe webhook (payment_intent.succeeded)
 ```
@@ -663,7 +663,7 @@ Upload (Polymorphic)
 - [ ] Guest/User information form
 - [ ] Address selection/creation
 - [ ] Order review section
-- [ ] Stripe payment integration
+- [✅] Stripe payment integration
 - [ ] Terms and conditions checkbox
 - [ ] Place order button
 - [ ] Loading states during payment processing
@@ -812,7 +812,7 @@ Upload (Polymorphic)
 - [ ] Form components (input, select, textarea)
 
 #### 5.4 State Management
-- [ ] Cart state (Pinia or Vuex)
+- [ ] Cart state (Pinia)
 - [ ] User state
 - [ ] Product filters state
 

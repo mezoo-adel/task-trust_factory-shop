@@ -2,18 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AddToCartRequest;
+use App\Http\Requests\UpdateCartItemRequest;
 use App\Models\CartItem;
 use App\Models\Product;
 use App\Services\CartService;
+use App\Services\VisitorService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class CartController extends Controller
 {
     public function __construct(
-        private CartService $cartService
+        private CartService $cartService,
+        private VisitorService $visitorService
     ) {}
 
     public function index(): Response
@@ -25,16 +28,12 @@ class CartController extends Controller
         ]);
     }
 
-    public function add(Request $request): RedirectResponse
+    public function add(AddToCartRequest $request): RedirectResponse
     {
-        $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'quantity' => 'required|integer|min:1',
-        ]);
+        $validated = $request->validated();
+        $product = Product::findOrFail($validated['product_id']);
 
-        $product = Product::findOrFail($request->product_id);
-
-        if ($product->stock_quantity < $request->quantity) {
+        if ($product->stock_quantity < $validated['quantity']) {
             return back()->withErrors(['message' => 'Insufficient stock available.']);
         }
 
@@ -43,28 +42,25 @@ class CartController extends Controller
         // Check if adding this quantity would exceed stock
         $existingItem = $cart->items()->where('product_id', $product->id)->first();
         if ($existingItem) {
-            $newQuantity = $existingItem->quantity + $request->quantity;
+            $newQuantity = $existingItem->quantity + $validated['quantity'];
             if ($newQuantity > $product->stock_quantity) {
                 return back()->withErrors(['message' => 'Cannot add more items than available in stock.']);
             }
         }
 
-        $this->cartService->addItem($cart, $product, $request->quantity);
+        $this->cartService->addItem($cart, $product, $validated['quantity']);
 
         return back()->with('success', 'Product added to cart successfully.');
     }
 
-    public function update(Request $request, CartItem $item): RedirectResponse
+    public function update(UpdateCartItemRequest $request, CartItem $item): RedirectResponse
     {
-        $request->validate([
-            'quantity' => 'required|integer|min:1',
-        ]);
-
-        if ($item->product->stock_quantity < $request->quantity) {
+        $validated = $request->validated(); 
+        if ($item->product->stock_quantity < $validated['quantity']) {
             return back()->withErrors(['message' => 'Insufficient stock available.']);
         }
 
-        $this->cartService->updateItemQuantity($item, $request->quantity);
+        $this->cartService->updateItemQuantity($item, $validated['quantity']);
 
         return back()->with('success', 'Cart updated successfully.');
     }
@@ -90,18 +86,8 @@ class CartController extends Controller
     private function getOrCreateCart()
     {
         $userId = auth()->check() ? auth()->id() : null;
-        $fingerprint = !$userId ? $this->getOrCreateVisitorFingerprint() : null;
+        $fingerprint = !$userId ? $this->visitorService->getOrCreateFingerprint() : null;
 
         return $this->cartService->getOrCreateCart($userId, $fingerprint);
-    }
-
-    private function getOrCreateVisitorFingerprint(): string
-    {
-        if (!session()->has('visitor_fingerprint')) {
-            $fingerprint = md5(session()->getId() . request()->ip() . request()->userAgent());
-            session()->put('visitor_fingerprint', $fingerprint);
-        }
-
-        return session()->get('visitor_fingerprint');
     }
 }

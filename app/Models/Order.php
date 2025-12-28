@@ -52,4 +52,31 @@ class Order extends Model
     {
         return $this->hasMany(StockTransaction::class);
     }
+
+    /**
+     * Check if order can be cancelled
+     * Order can be cancelled if status is not 'cancelled' or 'delivered'
+     */
+    public function getIsCancellableAttribute(): bool
+    {
+        return !in_array($this->status, [
+            OrderStatusEnum::CANCELLED,
+            OrderStatusEnum::DELIVERED,
+        ]);
+    }
+
+    /**
+     * Cancel the order
+     *
+     * @return bool
+     */
+    public function cancel(): bool
+    {
+        if (!$this->is_cancellable) {
+            return false;
+        }
+
+        $this->update(['status' => OrderStatusEnum::CANCELLED]);
+        return true;
+    }
 }

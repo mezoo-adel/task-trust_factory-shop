@@ -72,4 +72,16 @@ class User extends Authenticatable
     {
         return $this->hasMany(StockTransaction::class, 'performed_by');
     }
+
+    public function notificationSubscriptions()
+    {
+        return $this->hasMany(UserNotificationSubscription::class);
+    }
+
+    public function notificationChannels()
+    {
+        return $this->belongsToMany(NotificationChannel::class, 'user_notification_subscriptions')
+            ->withPivot('is_subscribed')
+            ->withTimestamps();
+    }
 }

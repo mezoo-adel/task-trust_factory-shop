@@ -4,6 +4,7 @@ namespace App\Listeners;
 
 use App\Enums\OrderStatusEnum;
 use App\Models\Address;
+use App\Models\Cart;
 use App\Models\User;
 use App\Services\CartService;
 use App\Services\OrderService;
@@ -18,14 +19,15 @@ class StripeEventListener
         private OrderService $orderService,
         private StockService $stockService,
         private CartService $cartService
-    ) {}
+    ) {
+    }
 
     /**
      * Handle the event.
      */
     public function handle(WebhookReceived $event): void
     {
-        Log::info('Stripe webhook event received', [
+        Log::channel('payments')->info('Stripe webhook event received', [
             'type' => $event->payload['type'],
             'id' => $event->payload['id'] ?? null,
         ]);
@@ -37,13 +39,13 @@ class StripeEventListener
 
     private function handleCheckoutSessionCompleted(array $session): void
     {
-        Log::info('Processing checkout.session.completed', [
+        Log::channel('payments')->info('Processing checkout.session.completed', [
             'session_id' => $session['id'],
             'payment_status' => $session['payment_status'],
         ]);
 
         if (($session['payment_status'] ?? null) !== 'paid') {
-            Log::info('Session not paid, skipping', [
+            Log::channel('payments')->info('Session not paid, skipping', [
                 'payment_status' => $session['payment_status'] ?? 'unknown',
             ]);
             return;
@@ -61,7 +63,7 @@ class StripeEventListener
         $total = $metadata['total'] ?? null;
 
         if (!$userId || !$addressId || !$cartItemsJson) {
-            Log::error('Missing required metadata in session', [
+            Log::channel('payments')->error('Missing required metadata in session', [
                 'user_id' => $userId,
                 'address_id' => $addressId,
                 'has_cart_items' => !empty($cartItemsJson),
@@ -77,7 +79,7 @@ class StripeEventListener
             $address = Address::find($addressId);
 
             if (!$user || !$address) {
-                Log::error('User or address not found', [
+                Log::channel('payments')->error('User or address not found', [
                     'user_id' => $userId,
                     'address_id' => $addressId,
                     'user_exists' => $user !== null,
@@ -91,7 +93,7 @@ class StripeEventListener
             $sessionId = $session['id'];
             if ($this->orderService->orderExistsForStripeSession($sessionId)) {
                 $existingOrder = $this->orderService->getOrderByStripeSession($sessionId);
-                Log::info('Order already exists for this session', [
+                Log::channel('payments')->info('Order already exists for this session', [
                     'order_id' => $existingOrder->id,
                     'order_uuid' => $existingOrder->uuid,
                 ]);
@@ -102,7 +104,7 @@ class StripeEventListener
             // Deserialize cart items
             $cartItems = json_decode($cartItemsJson, true);
             if (!is_array($cartItems)) {
-                Log::error('Invalid cart items JSON in metadata');
+                Log::channel('payments')->error('Invalid cart items JSON in metadata');
                 DB::rollBack();
                 return;
             }
@@ -122,7 +124,7 @@ class StripeEventListener
                 status: OrderStatusEnum::PAID
             );
 
-            Log::info('Order created from webhook', [
+            Log::channel('payments')->info('Order created from webhook', [
                 'order_id' => $order->id,
                 'order_uuid' => $order->uuid,
                 'user_id' => $user->id,
@@ -131,18 +133,18 @@ class StripeEventListener
             // Decrease stock for order using StockService
             $this->stockService->decreaseStockForOrder($order);
 
-            // Clear cart items (not the cart itself) using CartService
+            // Clear cart items using CartService
             if ($cartId) {
-                $cart = \App\Models\Cart::find($cartId);
+                $cart = Cart::find($cartId);
                 if ($cart) {
                     $this->cartService->clearCart($cart);
-                    Log::info('Cart items cleared', ['cart_id' => $cart->id]);
+                    Log::channel('payments')->info('Cart items cleared', ['cart_id' => $cart->id]);
                 }
             }
 
             DB::commit();
 
-            Log::info('Order payment processed successfully', [
+            Log::channel('payments')->info('Order payment processed successfully', [
                 'order_id' => $order->id,
                 'order_uuid' => $order->uuid,
             ]);
@@ -150,12 +152,12 @@ class StripeEventListener
             // TODO: Send order confirmation email
         } catch (\Exception $e) {
             DB::rollBack();
-            
-            Log::error('Error processing checkout session', [
+
+            Log::channel('payments')->error('Error processing checkout session', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
-            
+
             throw $e;
         }
     }

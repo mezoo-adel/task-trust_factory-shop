@@ -103,7 +103,7 @@ const goToPage = (url: string | null) => {
 
                 <!-- Orders List - Compact Design -->
                 <div v-else class="space-y-4">
-                    <div class="grid gap-4 md:grid-cols-2">
+                    <div class="grid gap-4 lg:grid-cols-2">
                         <Card 
                             v-for="order in orders.data" 
                             :key="order.id"

@@ -1,19 +1,27 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, useForm } from '@inertiajs/vue3';
 import PublicLayout from '@/layouts/PublicLayout.vue';
 import OrderDetailsCard from '@/components/OrderDetailsCard.vue';
 import AddressCard from '@/components/AddressCard.vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, CreditCard, Truck } from 'lucide-vue-next';
+import { ArrowLeft, CreditCard, Truck, XCircle } from 'lucide-vue-next';
 import type { Order } from '@/types/models';
 
 interface Props {
     order: Order;
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
+
+const cancelForm = useForm({});
+
+const cancelOrder = () => {
+    if (confirm('Are you sure you want to cancel this order?')) {
+        cancelForm.post(route('orders.cancel', props.order.id));
+    }
+};
 
 const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -72,9 +80,21 @@ const getStatusLabel = (status: string) => {
                             </h1>
                             <p class="text-gray-600">Placed on {{ formatDate(order.created_at) }}</p>
                         </div>
-                        <Badge :class="getStatusColor(order.status)" class="text-base px-4 py-2">
-                            {{ getStatusLabel(order.status) }}
-                        </Badge>
+                        <div class="flex items-center gap-3">
+                            <Badge :class="getStatusColor(order.status)" class="text-base px-4 py-2">
+                                {{ getStatusLabel(order.status) }}
+                            </Badge>
+                            <Button
+                                v-if="order.is_cancellable"
+                                variant="destructive"
+                                size="sm"
+                                @click="cancelOrder"
+                                :disabled="cancelForm.processing"
+                            >
+                                <XCircle class="w-4 h-4 mr-2" />
+                                Cancel Order
+                            </Button>
+                        </div>
                     </div>
                 </div>
 
