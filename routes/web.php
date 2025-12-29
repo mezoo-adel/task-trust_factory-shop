@@ -6,8 +6,8 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UploadController;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -30,8 +30,11 @@ Route::controller(CheckoutController::class)->prefix('checkout')->name('checkout
     Route::get('/success', 'success')->name('success');
 });
 
-
-
+// Upload Routes (Public with rate limiting)
+Route::controller(UploadController::class)->prefix('uploads')->name('uploads.')->middleware('throttle:60,1')->group(function () {
+    Route::post('/', 'store')->name('store');
+    Route::delete('/{upload}', 'destroy')->name('destroy');
+});
 
 Route::middleware(['auth'])->group(function () {
     Route::controller(OrderController::class)->prefix('orders')->name('orders.')->group(function () {
@@ -52,11 +55,6 @@ Route::middleware(['auth'])->group(function () {
         });
     });
 });
-
-Route::get('dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
 
 require __DIR__ . '/admin.php';
 require __DIR__ . '/settings.php';

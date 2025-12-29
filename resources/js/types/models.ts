@@ -1,3 +1,25 @@
+export interface User {
+    id: number;
+    name: string;
+    email: string;
+    is_admin: boolean;
+}
+
+export interface Upload {
+    id: number;
+    file_name: string;
+    file_path: string;
+    url: string;
+    file_size: number;
+    mime_type: string;
+}
+
+export interface UploadProgress {
+    uploadId: string;
+    progress: number;
+    file: File;
+}
+
 // Product Types
 export interface Product {
     id: number;
@@ -82,3 +104,74 @@ export interface ProductFilters {
     inStock?: boolean;
 }
 
+// Pagination Types
+export interface PaginationLink {
+    url: string | null;
+    label: string;
+    active: boolean;
+}
+
+export interface PaginatedData<T> {
+    data: T[];
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+    from: number;
+    to: number;
+    links: PaginationLink[];
+}
+
+// Admin Types
+export interface AdminDashboardStats {
+    today_orders: number;
+    today_revenue: number;
+    week_orders: number;
+    month_orders: number;
+    total_revenue: number;
+    total_users: number;
+    total_products: number;
+    low_stock_count: number;
+}
+
+export interface OrdersByStatus {
+    paid: number;
+    processing: number;
+    shipped: number;
+    delivered: number;
+    cancelled: number;
+}
+
+export interface RecentOrder {
+    id: number;
+    uuid: string;
+    user_name: string;
+    user_email: string;
+    status: string;
+    total: number;
+    items_count: number;
+    created_at: string;
+}
+
+export interface LowStockProduct {
+    id: number;
+    name: string;
+    stock_quantity: number;
+    stock_threshold: number;
+    price: number;
+}
+
+export interface AdminUser {
+    id: number;
+    name: string;
+    email: string;
+    is_admin: boolean;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface ProfileProps {
+    user: User;
+    addresses: Address[];
+    notification_preferences: Record<string, boolean>;
+}

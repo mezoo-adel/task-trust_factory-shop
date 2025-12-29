@@ -35,7 +35,7 @@ class ProductController extends Controller
                 $query->orderBy('name', 'asc');
         }
 
-        $products = $query->get();
+        $products = $query->paginate(10);
 
         return Inertia::render('Products/Index', [
             'products' => $products,

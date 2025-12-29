@@ -37,7 +37,7 @@ class OrderObserver
             $oldStatus = $order->getOriginal('status');
             $newStatus = $order->status;
 
-            Log::info("Order {$order->id} status changed from {$oldStatus} to {$newStatus->value}");
+            Log::info("Order {$order->id} status changed",['oldStatus' => $oldStatus, 'newStatus' => $newStatus]);
 
             // Send appropriate notification based on new status
             match ($newStatus) {

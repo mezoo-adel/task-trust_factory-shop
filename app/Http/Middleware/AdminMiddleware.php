@@ -17,7 +17,7 @@ class AdminMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         if (!auth()->check()) {
-            return redirect()->route('admin.login')
+            return redirect()->route('login')
                 ->with('error', 'Please login to access the admin panel.');
         }
 

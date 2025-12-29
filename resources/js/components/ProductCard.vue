@@ -45,19 +45,19 @@ const formatPrice = (price: number) => {
             </div>
         </CardContent>
         <CardFooter class="p-4 pt-0">
-            <Button 
+            <Button
                 v-if="buttonHref"
-                as-child 
-                class="w-full cursor-pointer" 
+                as-child
+                class="w-full cursor-pointer"
                 :disabled="product.stock_quantity === 0"
             >
                 <Link :href="buttonHref">
                     {{ buttonText }}
                 </Link>
             </Button>
-            <Button 
+            <Button
                 v-else-if="onButtonClick"
-                class="w-full cursor-pointer" 
+                class="w-full cursor-pointer"
                 :disabled="product.stock_quantity === 0"
                 @click="onButtonClick"
             >

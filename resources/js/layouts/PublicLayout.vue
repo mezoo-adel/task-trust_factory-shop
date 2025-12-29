@@ -51,7 +51,7 @@ const cartItemCount = computed(() => page.props.cartItemCount || 0);
                                     My Orders
                                 </Button>
                             </Link>
-                            <Link href="/dashboard">
+                            <Link href="/profile">
                                 <Button variant="ghost" size="icon">
                                     <User class="w-5 h-5" />
                                 </Button>

@@ -3,14 +3,15 @@ import { Head, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import PublicLayout from '@/layouts/PublicLayout.vue';
 import ProductCard from '@/components/ProductCard.vue';
+import Pagination from '@/components/Pagination.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Search } from 'lucide-vue-next';
-import type { Product, ProductFilters } from '@/types/models';
+import type { Product, ProductFilters, PaginatedData } from '@/types/models';
 
 interface Props {
-    products: Product[];
+    products: PaginatedData<Product>;
     filters?: ProductFilters;
 }
 
@@ -99,11 +100,12 @@ const clearFilters = () => {
                 </div>
 
                 <!-- Products Grid -->
-                <div v-if="products.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    <ProductCard 
-                        v-for="product in products" 
-                        :key="product.id" 
+                <div v-if="products.data.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+                    <ProductCard
+                        v-for="product in products.data"
+                        :key="product.id"
                         :product="product"
+                        :showStock="false"
                         :button-href="`/products/${product.id}`"
                     />
                 </div>
@@ -117,6 +119,9 @@ const clearFilters = () => {
                     <p class="text-gray-600 mb-6">Try adjusting your search or filters</p>
                     <Button @click="clearFilters">Clear Filters</Button>
                 </div>
+
+                <!-- Pagination -->
+                <Pagination :data="products" item-name="products" />
             </div>
         </div>
     </PublicLayout>

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('uploads', function (Blueprint $table) {
             $table->id();
-            $table->morphs('uploadable');
+            $table->nullableMorphs('uploadable');
             $table->string('file_name');
             $table->string('file_path');
             $table->string('file_type')->nullable();

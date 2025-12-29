@@ -1,23 +1,31 @@
 <script setup lang="ts">
-import { Head, useForm } from '@inertiajs/vue3';
-import { ref } from 'vue';
-import PublicLayout from '@/layouts/PublicLayout.vue';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import InputError from '@/components/InputError.vue';
-import { User, Lock, Bell, MapPin } from 'lucide-vue-next';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import PublicLayout from '@/layouts/PublicLayout.vue';
+import {
+    destroy as destroyAddressRoute,
+    store as storeAddressRoute,
+    update as updateAddressRoute,
+} from '@/routes/profile/addresses';
+import { update as updateNotificationsRoute } from '@/routes/profile/notifications';
+import { update as updatePasswordRoute } from '@/routes/profile/password';
+import type { ProfileProps } from '@/types/models';
+import { Head, useForm } from '@inertiajs/vue3';
+import { Bell, Lock, MapPin } from 'lucide-vue-next';
+import { ref } from 'vue';
 
-interface Props {
-    user: any;
-    addresses: any[];
-    notification_preferences: any[];
-}
-
-const props = defineProps<Props>();
+const props = defineProps<ProfileProps>();
 
 // Password form
 const passwordForm = useForm({
@@ -27,7 +35,7 @@ const passwordForm = useForm({
 });
 
 const updatePassword = () => {
-    passwordForm.patch(route('profile.password.update'), {
+    passwordForm.patch(updatePasswordRoute.url(), {
         preserveScroll: true,
         onSuccess: () => {
             passwordForm.reset();
@@ -36,15 +44,41 @@ const updatePassword = () => {
 };
 
 // Notification preferences
-const notificationForm = useForm({
-    preferences: props.notification_preferences.reduce((acc: any, pref: any) => {
-        acc[pref.id] = pref.is_subscribed;
+// Backend returns array of objects with: id, channel, name, description, is_subscribed
+interface NotificationPreference {
+    id: number;
+    channel: string;
+    name: string;
+    description: string;
+    is_subscribed: boolean;
+}
+
+// Check if it's an array (from backend) or already an object
+const isArrayFormat = Array.isArray(props.notification_preferences);
+
+// Store array for template iteration
+const notificationPreferencesArray = isArrayFormat
+    ? (props.notification_preferences as NotificationPreference[])
+    : [];
+
+// Convert to Record<channel_id, boolean> format for form submission
+// The update method expects channel_id => is_subscribed
+const notificationPreferencesObj = isArrayFormat
+    ? notificationPreferencesArray.reduce((acc: Record<string, boolean>, item: NotificationPreference) => {
+        if (item && item.id) {
+            // Use channel_id (item.id) as key for the update request
+            acc[item.id.toString()] = item.is_subscribed || false;
+        }
         return acc;
-    }, {}),
+    }, {})
+    : (props.notification_preferences as Record<string, boolean>);
+
+const notificationForm = useForm({
+    preferences: { ...notificationPreferencesObj },
 });
 
 const updateNotifications = () => {
-    notificationForm.patch(route('profile.notifications.update'), {
+    notificationForm.patch(updateNotificationsRoute.url(), {
         preserveScroll: true,
     });
 };
@@ -78,15 +112,18 @@ const openAddressForm = (address: any = null) => {
 
 const saveAddress = () => {
     if (editingAddress.value) {
-        addressForm.patch(route('profile.addresses.update', editingAddress.value.id), {
-            preserveScroll: true,
-            onSuccess: () => {
-                showAddressForm.value = false;
-                addressForm.reset();
+        addressForm.patch(
+            updateAddressRoute.url({ address: editingAddress.value.id }),
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    showAddressForm.value = false;
+                    addressForm.reset();
+                },
             },
-        });
+        );
     } else {
-        addressForm.post(route('profile.addresses.store'), {
+        addressForm.post(storeAddressRoute.url(), {
             preserveScroll: true,
             onSuccess: () => {
                 showAddressForm.value = false;
@@ -98,7 +135,7 @@ const saveAddress = () => {
 
 const deleteAddress = (addressId: number) => {
     if (confirm('Are you sure you want to delete this address?')) {
-        useForm({}).delete(route('profile.addresses.destroy', addressId), {
+        useForm({}).delete(destroyAddressRoute.url({ address: addressId }), {
             preserveScroll: true,
         });
     }
@@ -110,20 +147,20 @@ const deleteAddress = (addressId: number) => {
 
     <PublicLayout>
         <div class="container mx-auto px-4 py-8">
-            <h1 class="text-3xl font-bold mb-8">Profile Settings</h1>
+            <h1 class="mb-8 text-3xl font-bold">Profile Settings</h1>
 
             <Tabs default-value="password" class="w-full">
                 <TabsList class="grid w-full grid-cols-3">
                     <TabsTrigger value="password">
-                        <Lock class="w-4 h-4 mr-2" />
+                        <Lock class="mr-2 h-4 w-4" />
                         Password
                     </TabsTrigger>
                     <TabsTrigger value="notifications">
-                        <Bell class="w-4 h-4 mr-2" />
+                        <Bell class="mr-2 h-4 w-4" />
                         Notifications
                     </TabsTrigger>
                     <TabsTrigger value="addresses">
-                        <MapPin class="w-4 h-4 mr-2" />
+                        <MapPin class="mr-2 h-4 w-4" />
                         Addresses
                     </TabsTrigger>
                 </TabsList>
@@ -138,16 +175,26 @@ const deleteAddress = (addressId: number) => {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <form @submit.prevent="updatePassword" class="space-y-4">
+                            <form
+                                @submit.prevent="updatePassword"
+                                class="grid gap-4 md:grid-cols-3"
+                            >
                                 <div>
-                                    <Label for="current_password">Current Password</Label>
+                                    <Label for="current_password"
+                                        >Current Password</Label
+                                    >
                                     <Input
                                         id="current_password"
                                         v-model="passwordForm.current_password"
                                         type="password"
                                         class="mt-1.5"
                                     />
-                                    <InputError :message="passwordForm.errors.current_password" class="mt-1" />
+                                    <InputError
+                                        :message="
+                                            passwordForm.errors.current_password
+                                        "
+                                        class="mt-1"
+                                    />
                                 </div>
 
                                 <div>
@@ -158,20 +205,30 @@ const deleteAddress = (addressId: number) => {
                                         type="password"
                                         class="mt-1.5"
                                     />
-                                    <InputError :message="passwordForm.errors.password" class="mt-1" />
+                                    <InputError
+                                        :message="passwordForm.errors.password"
+                                        class="mt-1"
+                                    />
                                 </div>
 
                                 <div>
-                                    <Label for="password_confirmation">Confirm New Password</Label>
+                                    <Label for="password_confirmation"
+                                        >Confirm New Password</Label
+                                    >
                                     <Input
                                         id="password_confirmation"
-                                        v-model="passwordForm.password_confirmation"
+                                        v-model="
+                                            passwordForm.password_confirmation
+                                        "
                                         type="password"
                                         class="mt-1.5"
                                     />
                                 </div>
 
-                                <Button type="submit" :disabled="passwordForm.processing">
+                                <Button
+                                    type="submit"
+                                    :disabled="passwordForm.processing"
+                                >
                                     Update Password
                                 </Button>
                             </form>
@@ -189,25 +246,76 @@ const deleteAddress = (addressId: number) => {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <form @submit.prevent="updateNotifications" class="space-y-4">
-                                <div
-                                    v-for="pref in notification_preferences"
-                                    :key="pref.id"
-                                    class="flex items-center space-x-3 border-b pb-3"
-                                >
-                                    <Checkbox
-                                        :id="`pref-${pref.id}`"
-                                        v-model:checked="notificationForm.preferences[pref.id]"
-                                    />
-                                    <div class="flex-1">
-                                        <Label :for="`pref-${pref.id}`" class="font-medium cursor-pointer">
-                                            {{ pref.name }}
-                                        </Label>
-                                        <p class="text-sm text-gray-600">{{ pref.description }}</p>
+                            <form
+                                @submit.prevent="updateNotifications"
+                                class="space-y-4"
+                            >
+                                <template v-if="isArrayFormat">
+                                    <div
+                                        v-for="pref in notificationPreferencesArray"
+                                        :key="pref.id"
+                                        class="flex items-center space-x-3 border-b pb-3"
+                                    >
+                                        <Checkbox
+                                            :id="`pref-${pref.id}`"
+                                            v-model:checked="
+                                                notificationForm.preferences[
+                                                    pref.id.toString()
+                                                ]
+                                            "
+                                        />
+                                        <div class="flex-1">
+                                            <Label
+                                                :for="`pref-${pref.id}`"
+                                                class="cursor-pointer font-medium"
+                                            >
+                                                {{ pref.name || (pref.channel && typeof pref.channel === 'string' ? pref.channel.charAt(0).toUpperCase() + pref.channel.slice(1) : 'Notification') }}
+                                            </Label>
+                                            <p class="text-sm text-gray-600">
+                                                {{ pref.description || (pref.channel ? `Receive ${pref.channel} notifications` : '') }}
+                                            </p>
+                                        </div>
                                     </div>
-                                </div>
+                                </template>
+                                <template v-else>
+                                    <div
+                                        v-for="(
+                                            isSubscribed, channel
+                                        ) in notificationPreferencesObj"
+                                        :key="String(channel || '')"
+                                        class="flex items-center space-x-3 border-b pb-3"
+                                    >
+                                        <Checkbox
+                                            :id="`pref-${channel}`"
+                                            v-model:checked="
+                                                notificationForm.preferences[
+                                                    channel
+                                                ]
+                                            "
+                                        />
+                                        <div class="flex-1">
+                                            <Label
+                                                :for="`pref-${channel}`"
+                                                class="cursor-pointer font-medium"
+                                            >
+                                                {{
+                                                    channel && typeof channel === 'string' && channel.length > 0
+                                                        ? channel.charAt(0).toUpperCase() + channel.slice(1)
+                                                        : String(channel || '')
+                                                }}
+                                                Notifications
+                                            </Label>
+                                            <p class="text-sm text-gray-600">
+                                                Receive {{ channel || '' }} notifications
+                                            </p>
+                                        </div>
+                                    </div>
+                                </template>
 
-                                <Button type="submit" :disabled="notificationForm.processing">
+                                <Button
+                                    type="submit"
+                                    :disabled="notificationForm.processing"
+                                >
                                     Save Preferences
                                 </Button>
                             </form>
@@ -229,16 +337,26 @@ const deleteAddress = (addressId: number) => {
                                 <div
                                     v-for="address in addresses"
                                     :key="address.id"
-                                    class="border rounded-lg p-4"
+                                    class="rounded-lg border p-4"
                                 >
-                                    <div class="flex justify-between items-start">
+                                    <div
+                                        class="flex items-start justify-between"
+                                    >
                                         <div>
-                                            <p class="font-semibold">{{ address.full_name }}</p>
-                                            <p class="text-sm text-gray-600">{{ address.phone }}</p>
-                                            <p class="text-sm text-gray-600 mt-1">{{ address.address }}</p>
+                                            <p class="font-semibold">
+                                                {{ address.full_name }}
+                                            </p>
+                                            <p class="text-sm text-gray-600">
+                                                {{ address.phone }}
+                                            </p>
+                                            <p
+                                                class="mt-1 text-sm text-gray-600"
+                                            >
+                                                {{ address.address }}
+                                            </p>
                                             <span
                                                 v-if="address.is_default"
-                                                class="inline-block mt-2 text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded"
+                                                class="mt-2 inline-block rounded bg-purple-100 px-2 py-1 text-xs text-purple-700"
                                             >
                                                 Default
                                             </span>
@@ -247,14 +365,18 @@ const deleteAddress = (addressId: number) => {
                                             <Button
                                                 size="sm"
                                                 variant="outline"
-                                                @click="openAddressForm(address)"
+                                                @click="
+                                                    openAddressForm(address)
+                                                "
                                             >
                                                 Edit
                                             </Button>
                                             <Button
                                                 size="sm"
                                                 variant="destructive"
-                                                @click="deleteAddress(address.id)"
+                                                @click="
+                                                    deleteAddress(address.id)
+                                                "
                                             >
                                                 Delete
                                             </Button>
@@ -262,24 +384,44 @@ const deleteAddress = (addressId: number) => {
                                     </div>
                                 </div>
 
-                                <Button @click="openAddressForm()" class="w-full">
+                                <Button
+                                    @click="openAddressForm()"
+                                    class="w-full"
+                                >
                                     + Add New Address
                                 </Button>
 
                                 <!-- Address Form Modal (simplified) -->
-                                <div v-if="showAddressForm" class="border-t pt-4 mt-4">
-                                    <h3 class="font-semibold mb-4">
-                                        {{ editingAddress ? 'Edit Address' : 'Add New Address' }}
+                                <div
+                                    v-if="showAddressForm"
+                                    class="mt-4 border-t pt-4"
+                                >
+                                    <h3 class="mb-4 font-semibold">
+                                        {{
+                                            editingAddress
+                                                ? 'Edit Address'
+                                                : 'Add New Address'
+                                        }}
                                     </h3>
-                                    <form @submit.prevent="saveAddress" class="space-y-4">
+                                    <form
+                                        @submit.prevent="saveAddress"
+                                        class="space-y-4"
+                                    >
                                         <div>
-                                            <Label for="full_name">Full Name</Label>
+                                            <Label for="full_name"
+                                                >Full Name</Label
+                                            >
                                             <Input
                                                 id="full_name"
                                                 v-model="addressForm.full_name"
                                                 class="mt-1.5"
                                             />
-                                            <InputError :message="addressForm.errors.full_name" class="mt-1" />
+                                            <InputError
+                                                :message="
+                                                    addressForm.errors.full_name
+                                                "
+                                                class="mt-1"
+                                            />
                                         </div>
 
                                         <div>
@@ -289,7 +431,12 @@ const deleteAddress = (addressId: number) => {
                                                 v-model="addressForm.phone"
                                                 class="mt-1.5"
                                             />
-                                            <InputError :message="addressForm.errors.phone" class="mt-1" />
+                                            <InputError
+                                                :message="
+                                                    addressForm.errors.phone
+                                                "
+                                                class="mt-1"
+                                            />
                                         </div>
 
                                         <div>
@@ -299,21 +446,38 @@ const deleteAddress = (addressId: number) => {
                                                 v-model="addressForm.address"
                                                 class="mt-1.5"
                                             />
-                                            <InputError :message="addressForm.errors.address" class="mt-1" />
+                                            <InputError
+                                                :message="
+                                                    addressForm.errors.address
+                                                "
+                                                class="mt-1"
+                                            />
                                         </div>
 
-                                        <div class="flex items-center space-x-2">
+                                        <div
+                                            class="flex items-center space-x-2"
+                                        >
                                             <Checkbox
                                                 id="is_default"
-                                                v-model:checked="addressForm.is_default"
+                                                v-model:checked="
+                                                    addressForm.is_default
+                                                "
                                             />
-                                            <Label for="is_default" class="cursor-pointer">
+                                            <Label
+                                                for="is_default"
+                                                class="cursor-pointer"
+                                            >
                                                 Set as default address
                                             </Label>
                                         </div>
 
                                         <div class="flex gap-2">
-                                            <Button type="submit" :disabled="addressForm.processing">
+                                            <Button
+                                                type="submit"
+                                                :disabled="
+                                                    addressForm.processing
+                                                "
+                                            >
                                                 Save Address
                                             </Button>
                                             <Button
@@ -334,4 +498,3 @@ const deleteAddress = (addressId: number) => {
         </div>
     </PublicLayout>
 </template>
-
