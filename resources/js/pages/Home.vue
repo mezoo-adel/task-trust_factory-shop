@@ -206,7 +206,7 @@ const formatPrice = (price: number) => {
                                     class="w-full"
                                     :disabled="product.stock_quantity === 0"
                                 >
-                                    <Link :href="`/products/${product.id}`">
+                                    <Link :href="`/products/${product.slug}`">
                                         View Details
                                     </Link>
                                 </Button>

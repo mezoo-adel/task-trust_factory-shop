@@ -7,8 +7,11 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/toast/use-toast';
 import PublicLayout from '@/layouts/PublicLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
+import type { Product } from '@/types/models';
 import {
     ArrowLeft,
+    ChevronLeft,
+    ChevronRight,
     Heart,
     Minus,
     Plus,
@@ -17,15 +20,6 @@ import {
 } from 'lucide-vue-next';
 import { ref } from 'vue';
 
-interface Product {
-    id: number;
-    name: string;
-    description: string;
-    price: number;
-    stock_quantity: number;
-    stock_threshold: number;
-    is_active: boolean;
-}
 
 interface Props {
     product: Product;
@@ -37,6 +31,25 @@ const { toast } = useToast();
 const quantity = ref(1);
 const isAddingToCart = ref(false);
 const quantityError = ref<string>('');
+const currentImageIndex = ref(0);
+
+const nextImage = () => {
+    if (props.product.image_urls && props.product.image_urls.length > 0) {
+        currentImageIndex.value = (currentImageIndex.value + 1) % props.product.image_urls.length;
+    }
+};
+
+const prevImage = () => {
+    if (props.product.image_urls && props.product.image_urls.length > 0) {
+        currentImageIndex.value = currentImageIndex.value === 0
+            ? props.product.image_urls.length - 1
+            : currentImageIndex.value - 1;
+    }
+};
+
+const selectImage = (index: number) => {
+    currentImageIndex.value = index;
+};
 
 const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -158,9 +171,64 @@ const isLowStock =
                 </Button>
 
                 <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
-                    <!-- Product Image -->
+                    <!-- Product Image Carousel -->
                     <div class="rounded-lg bg-white p-8 shadow-sm">
+                        <div v-if="product.image_urls && product.image_urls.length > 0" class="space-y-4">
+                            <!-- Main Image -->
+                            <div class="relative aspect-square overflow-hidden rounded-lg bg-gray-100">
+                                <img
+                                    :src="product.image_urls[currentImageIndex]"
+                                    :alt="product.name"
+                                    class="h-full w-full object-cover"
+                                />
+
+                                <!-- Navigation Arrows -->
+                                <div v-if="product.image_urls.length > 1" class="absolute inset-0 flex items-center justify-between p-4">
+                                    <Button
+                                        variant="secondary"
+                                        size="icon"
+                                        class="h-10 w-10 rounded-full bg-white/80 hover:bg-white"
+                                        @click="prevImage"
+                                    >
+                                        <ChevronLeft class="h-6 w-6" />
+                                    </Button>
+                                    <Button
+                                        variant="secondary"
+                                        size="icon"
+                                        class="h-10 w-10 rounded-full bg-white/80 hover:bg-white"
+                                        @click="nextImage"
+                                    >
+                                        <ChevronRight class="h-6 w-6" />
+                                    </Button>
+                                </div>
+
+                                <!-- Image Counter -->
+                                <div v-if="product.image_urls.length > 1" class="absolute bottom-4 right-4 rounded-full bg-black/60 px-3 py-1 text-sm text-white">
+                                    {{ currentImageIndex + 1 }} / {{ product.image_urls.length }}
+                                </div>
+                            </div>
+
+                            <!-- Thumbnails -->
+                            <div v-if="product.image_urls.length > 1" class="grid grid-cols-5 gap-2">
+                                <button
+                                    v-for="(imageUrl, index) in product.image_urls"
+                                    :key="index"
+                                    @click="selectImage(index)"
+                                    class="aspect-square overflow-hidden rounded-lg border-2 transition-all"
+                                    :class="currentImageIndex === index ? 'border-purple-600' : 'border-gray-200 hover:border-gray-400'"
+                                >
+                                    <img
+                                        :src="imageUrl"
+                                        :alt="`${product.name} thumbnail ${index + 1}`"
+                                        class="h-full w-full object-cover"
+                                    />
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Placeholder if no images -->
                         <div
+                            v-else
                             class="flex aspect-square items-center justify-center rounded-lg bg-gradient-to-br from-purple-100 to-pink-100"
                         >
                             <Sparkles class="h-32 w-32 text-purple-400" />

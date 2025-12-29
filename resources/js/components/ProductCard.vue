@@ -29,8 +29,19 @@ const formatPrice = (price: number) => {
 <template>
     <Card class="group hover:shadow-lg transition-shadow">
         <CardHeader class="p-0">
-            <div class="aspect-square bg-gradient-to-br from-purple-100 to-pink-100 rounded-t-lg flex items-center justify-center">
-                <Sparkles class="w-16 h-16 text-purple-400 group-hover:scale-110 transition-transform" />
+            <div class="aspect-square rounded-t-lg overflow-hidden bg-gray-100">
+                <img
+                    v-if="product.image_urls && product.image_urls.length > 0"
+                    :src="product.image_urls[0]"
+                    :alt="product.name"
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                />
+                <div
+                    v-else
+                    class="w-full h-full bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center"
+                >
+                    <Sparkles class="w-16 h-16 text-purple-400 group-hover:scale-110 transition-transform" />
+                </div>
             </div>
         </CardHeader>
         <CardContent class="p-4">

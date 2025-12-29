@@ -11,7 +11,7 @@ class ProductController extends Controller
 {
     public function index(Request $request): Response
     {
-        $query = Product::where('is_active', true);
+        $query = Product::with('uploads')->where('is_active', true);
 
         if ($request->filled('search')) {
             $search = $request->input('search');
@@ -48,6 +48,8 @@ class ProductController extends Controller
 
     public function show(Product $product): Response
     {
+        $product->load('uploads');
+
         return Inertia::render('Products/Show', [
             'product' => $product,
         ]);

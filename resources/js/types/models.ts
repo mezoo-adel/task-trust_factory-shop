@@ -24,11 +24,13 @@ export interface UploadProgress {
 export interface Product {
     id: number;
     name: string;
+    slug: string;
     description: string;
     price: number;
     stock_quantity: number;
     stock_threshold: number;
     is_active: boolean;
+    image_urls: string[];
 }
 
 // Cart Types
@@ -41,6 +43,7 @@ export interface CartItem {
     product: {
         id: number;
         name: string;
+        slug: string;
         price: number;
         stock_quantity?: number;
     };
@@ -79,6 +82,7 @@ export interface OrderItem {
     product: {
         id: number;
         name: string;
+        slug: string;
     };
 }
 
@@ -156,6 +160,7 @@ export interface RecentOrder {
 export interface LowStockProduct {
     id: number;
     name: string;
+    slug: string;
     stock_quantity: number;
     stock_threshold: number;
     price: number;

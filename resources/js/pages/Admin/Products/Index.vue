@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import Pagination from '@/components/Pagination.vue';
 import adminRoutes from '@/routes/admin';
-import { Package, Plus, Search, Edit, ArrowLeft, Eye } from 'lucide-vue-next';
+import { Package, Plus, Search, Edit, ArrowLeft, Eye, Sparkles } from 'lucide-vue-next';
 import type { Product, PaginatedData } from '@/types/models';
 
 interface Props {
@@ -98,8 +98,22 @@ const clearFilters = () => {
 
             <!-- Products Grid -->
             <div v-if="products.data.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                <Card v-for="product in products.data" :key="product.id" class="hover:shadow-lg transition-shadow">
-                    <CardContent>
+                <Card v-for="product in products.data" :key="product.id" class="hover:shadow-lg transition-shadow overflow-hidden">
+                    <div class="aspect-video bg-gray-100 overflow-hidden">
+                        <img
+                            v-if="product.image_urls && product.image_urls.length > 0"
+                            :src="product.image_urls[0]"
+                            :alt="product.name"
+                            class="w-full h-full object-cover"
+                        />
+                        <div
+                            v-else
+                            class="w-full h-full bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center"
+                        >
+                            <Sparkles class="w-12 h-12 text-purple-400" />
+                        </div>
+                    </div>
+                    <CardContent class="pt-4">
                         <div class="flex flex-col h-full">
                             <div class="flex-1">
                                 <h3 class="text-lg font-semibold mb-2">{{ product.name }}</h3>

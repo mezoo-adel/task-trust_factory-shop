@@ -106,7 +106,7 @@ const clearFilters = () => {
                         :key="product.id"
                         :product="product"
                         :showStock="false"
-                        :button-href="`/products/${product.id}`"
+                        :button-href="`/products/${product.slug}`"
                     />
                 </div>
 

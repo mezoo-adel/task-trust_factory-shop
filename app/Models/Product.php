@@ -2,21 +2,30 @@
 
 namespace App\Models;
 
+use App\Traits\Sluggable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, Sluggable;
 
     protected $fillable = [
         'name',
+        'slug',
         'description',
         'price',
         'stock_quantity',
         'stock_threshold',
         'is_active',
     ];
+
+    protected $appends = ['image_urls'];
+
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
 
     protected function casts(): array
     {
@@ -57,4 +66,13 @@ class Product extends Model
     {
         return $this->stock_quantity > 0;
     }
+
+
+    public function getImageUrlsAttribute(): array
+    {
+        return $this->uploads->map(function ($upload) {
+            return asset('storage/' . $upload->file_path);
+        })->toArray();
+    }
+
 }

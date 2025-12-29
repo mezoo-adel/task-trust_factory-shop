@@ -128,7 +128,7 @@ const clearCart = () => {
 
                                     <!-- Product Details -->
                                     <div class="flex-1 min-w-0">
-                                        <Link :href="`/products/${item.product.id}`" class="hover:text-purple-600">
+                                        <Link :href="`/products/${item.product.slug}`" class="hover:text-purple-600">
                                             <h3 class="font-semibold text-lg mb-1 truncate">{{ item.product.name }}</h3>
                                         </Link>
                                         <p class="text-gray-600 mb-3">{{ formatPrice(item.product.price) }} each</p>
