@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\Filterable;
 use App\Traits\Sluggable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
-    use SoftDeletes, Sluggable;
+    use SoftDeletes, Sluggable, Filterable;
 
     protected $fillable = [
         'name',

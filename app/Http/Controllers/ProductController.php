@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Filters\ProductFilter;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -9,17 +10,11 @@ use Inertia\Response;
 
 class ProductController extends Controller
 {
-    public function index(Request $request): Response
+    public function index(Request $request, ProductFilter $filter): Response
     {
-        $query = Product::with('uploads')->where('is_active', true);
-
-        if ($request->filled('search')) {
-            $search = $request->input('search');
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
-            });
-        }
+        $query = Product::filter($filter)
+            ->with('uploads')
+            ->where('is_active', true);
 
         switch ($request->input('sort', 'name')) {
             case 'price_asc':
@@ -35,7 +30,7 @@ class ProductController extends Controller
                 $query->orderBy('name', 'asc');
         }
 
-        $products = $query->paginate(10);
+        $products = $query->paginate($this->perPage);
 
         return Inertia::render('Products/Index', [
             'products' => $products,

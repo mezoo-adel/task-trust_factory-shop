@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use App\Traits\Filterable;
 use Illuminate\Database\Eloquent\Model;
 
 class StockTransaction extends Model
 {
+    use Filterable;
     protected $fillable = [
         'product_id',
         'order_id',

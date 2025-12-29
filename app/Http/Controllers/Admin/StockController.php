@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Filters\ProductFilter;
+use App\Http\Filters\StockTransactionFilter;
 use App\Http\Requests\Admin\AdjustStockRequest;
 use App\Models\Product;
 use App\Models\StockTransaction;
@@ -16,27 +18,11 @@ class StockController extends Controller
         private StockService $stockService
     ) {}
 
-    public function index(Request $request)
+    public function index(Request $request, ProductFilter $filter)
     {
-        $query = Product::query();
-
-        // Filter by stock status
-        if ($request->has('filter')) {
-            $filter = $request->input('filter');
-            if ($filter === 'low') {
-                $query->whereRaw('stock_quantity <= stock_threshold');
-            } elseif ($filter === 'out') {
-                $query->where('stock_quantity', 0);
-            }
-        }
-
-        // Search
-        if ($request->has('search')) {
-            $search = $request->input('search');
-            $query->where('name', 'like', "%{$search}%");
-        }
-
-        $products = $query->orderBy('stock_quantity', 'asc')->paginate(20);
+        $products = Product::filter($filter)
+            ->orderBy('stock_quantity', 'asc')
+            ->paginate($this->perPage);
 
         return Inertia::render('Admin/Stock/Index', [
             'products' => $products,
@@ -71,21 +57,12 @@ class StockController extends Controller
         }
     }
 
-    public function transactions(Request $request)
+    public function transactions(Request $request, StockTransactionFilter $filter)
     {
-        $query = StockTransaction::with(['product', 'order', 'performedBy']);
-
-        // Filter by product
-        if ($request->has('product_id')) {
-            $query->where('product_id', $request->input('product_id'));
-        }
-
-        // Filter by operation
-        if ($request->has('operation')) {
-            $query->where('operation', $request->input('operation'));
-        }
-
-        $transactions = $query->orderBy('created_at', 'desc')->paginate(50);
+        $transactions = StockTransaction::filter($filter)
+            ->with(['product', 'order', 'performedBy'])
+            ->orderBy('created_at', 'desc')
+            ->paginate($this->perPage);
 
         return Inertia::render('Admin/Stock/Transactions', [
             'transactions' => $transactions,

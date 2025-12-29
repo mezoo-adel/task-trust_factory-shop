@@ -3,12 +3,13 @@
 namespace App\Models;
 
 use App\Enums\OrderStatusEnum;
+use App\Traits\Filterable;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
 {
-    use HasUuid;
+    use HasUuid, Filterable;
     protected $fillable = [
         'user_id',
         'address_id',

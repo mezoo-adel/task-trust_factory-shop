@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Filters\UserFilter;
 use App\Http\Requests\Admin\StoreAdminUserRequest;
 use App\Models\User;
 use App\Services\AdminUserService;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class AdminUserController extends Controller
@@ -14,11 +16,12 @@ class AdminUserController extends Controller
         private AdminUserService $adminUserService
     ) {}
 
-    public function index()
+    public function index(Request $request, UserFilter $filter)
     {
-        $admins = User::where('is_admin', true)
+        $admins = User::filter($filter)
+            ->where('is_admin', true)
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate($this->perPage);
 
         return Inertia::render('Admin/Admins/Index', [
             'admins' => $admins,

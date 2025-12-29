@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Filters\ProductFilter;
 use App\Http\Requests\Admin\StoreProductRequest;
 use App\Http\Requests\Admin\UpdateProductRequest;
 use App\Models\Product;
@@ -16,31 +17,9 @@ class ProductController extends Controller
         protected ProductService $productService
     ) {}
 
-    public function index(Request $request)
+    public function index(Request $request, ProductFilter $filter)
     {
-        $query = Product::query()->with('uploads');
-
-        // Search
-        if ($request->has('search')) {
-            $search = $request->input('search');
-            $query->where(function ($q) use ($search) {
-                $q
-                    ->where('name', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%");
-            });
-        }
-
-        // Filter by stock status
-        if ($request->has('stock_filter')) {
-            $filter = $request->input('stock_filter');
-            if ($filter === 'low') {
-                $query->whereRaw('stock_quantity <= stock_threshold');
-            } elseif ($filter === 'out') {
-                $query->where('stock_quantity', 0);
-            }
-        }
-
-        $products = $query->orderBy('created_at', 'desc')->paginate(5);
+        $products = Product::filter($filter)->with('uploads')->orderBy('created_at', 'desc')->paginate($this->perPage);
 
         return Inertia::render('Admin/Products/Index', [
             'products' => $products,
