@@ -1,9 +1,11 @@
 # Trust Factory Shop - Project Plan
+
 **Full-Stack Cosmetics E-commerce Platform**
 
 ---
 
 ## Table of Contents
+
 1. [Project Overview](#project-overview)
 2. [Technical Stack](#technical-stack)
 3. [System Architecture](#system-architecture)
@@ -19,9 +21,11 @@
 ## Project Overview
 
 ### Business Description
+
 A modern, full-featured e-commerce platform for selling cosmetics products. The platform provides a seamless shopping experience for both guest and authenticated users, with comprehensive inventory management, automated notifications, and Stripe payment integration.
 
 ### Key Objectives
+
 - Provide intuitive product browsing and purchasing experience
 - Support guest checkout with seamless account creation
 - Automated inventory tracking with low stock alerts
@@ -34,6 +38,7 @@ A modern, full-featured e-commerce platform for selling cosmetics products. The 
 ## Technical Stack
 
 ### Backend
+
 - **Framework**: Laravel 12.x (latest stable)
 - **Authentication**: Laravel Breeze with Vue
 - **Database**: MySQL/PostgreSQL
@@ -43,12 +48,14 @@ A modern, full-featured e-commerce platform for selling cosmetics products. The 
 - **Email Service**: Mailsuite
 
 ### Frontend
+
 - **Framework**: Vue.js 3 (via Laravel Breeze)
 - **Styling**: Tailwind CSS
 - **UI Components**: Custom components with Tailwind
 - **Icons**: Heroicons or Lucide
 
 ### Development Tools
+
 - **Version Control**: Git/GitHub
 - **Package Manager**: Composer (PHP), NPM (JavaScript)
 - **Code Quality**: Laravel Pint, ESLint
@@ -127,6 +134,7 @@ A modern, full-featured e-commerce platform for selling cosmetics products. The 
 ### Core Models & Relationships
 
 #### **users**
+
 ```
 - id (bigint, PK)
 - name (string)
@@ -140,6 +148,7 @@ A modern, full-featured e-commerce platform for selling cosmetics products. The 
 ```
 
 #### **visitors**
+
 ```
 - id (bigint, PK)
 - fingerprint (string, unique, indexed)
@@ -150,6 +159,7 @@ A modern, full-featured e-commerce platform for selling cosmetics products. The 
 ```
 
 #### **products**
+
 ```
 - id (bigint, PK)
 - name (string)
@@ -163,6 +173,7 @@ A modern, full-featured e-commerce platform for selling cosmetics products. The 
 ```
 
 #### **uploads** (Polymorphic)
+
 ```
 - id (bigint, PK)
 - uploadable_id (bigint)
@@ -180,6 +191,7 @@ Indexes:
 ```
 
 #### **carts**
+
 ```
 - id (bigint, PK)
 - user_id (bigint, FK, nullable)
@@ -192,6 +204,7 @@ Indexes:
 ```
 
 #### **cart_items**
+
 ```
 - id (bigint, PK)
 - cart_id (bigint, FK)
@@ -204,6 +217,7 @@ Indexes:
 ```
 
 #### **addresses**
+
 ```
 - id (bigint, PK)
 - user_id (bigint, FK)
@@ -224,6 +238,7 @@ Indexes:
 ```
 
 #### **orders**
+
 ```
 - id (bigint, PK)
 - user_id (bigint, FK)
@@ -246,6 +261,7 @@ Indexes:
 ```
 
 #### **order_items**
+
 ```
 - id (bigint, PK)
 - order_id (bigint, FK)
@@ -260,6 +276,7 @@ Indexes:
 ```
 
 #### **stock_transactions**
+
 ```
 - id (bigint, PK)
 - product_id (bigint, FK)
@@ -280,6 +297,7 @@ Indexes:
 ### Enums
 
 #### **OrderStatusEnum**
+
 ```php
 enum OrderStatusEnum: string
 {
@@ -347,6 +365,7 @@ Upload (Polymorphic)
 ### 1. Guest Experience
 
 #### Product Browsing
+
 - **Homepage**: Featured products grid, hero banner
 - **Product Listing**: Grid view with images, name, price
 - **Product Detail**: Full description, image gallery, add to cart
@@ -354,6 +373,7 @@ Upload (Polymorphic)
 - **Filtering**: Price range, availability
 
 #### Guest Cart Management
+
 - Automatic Visitor creation with fingerprint
 - Add/update/remove products
 - Real-time cart total calculation (via accessors)
@@ -361,6 +381,7 @@ Upload (Polymorphic)
 - Stock validation before adding to cart
 
 #### Guest Checkout
+
 - Cart review with item details
 - Account creation form (name, email, password)
 - Address input form
@@ -370,12 +391,14 @@ Upload (Polymorphic)
 ### 2. Authenticated User Experience
 
 #### Account Management
+
 - Login/Register (Laravel Breeze)
 - Profile editing
 - Password management
 - Address book (add/edit/delete/set default)
 
 #### Shopping Features
+
 - Cart automatically linked to user account
 - Order history with status tracking
 - Order details view
@@ -384,6 +407,7 @@ Upload (Polymorphic)
 ### 3. Admin Dashboard
 
 #### Product Management
+
 - **CRUD Operations**: Create, read, update, delete products
 - **Bulk Actions**: Bulk delete, bulk status change
 - **Search & Filter**: By name, stock level, status
@@ -391,17 +415,20 @@ Upload (Polymorphic)
 - **Stock Management**: Manual stock adjustments with StockTransaction logging
 
 #### Order Management
+
 - **Order List**: View all orders with filters (status, date, user)
 - **Order Details**: Full order information, customer details
 - **Status Updates**: Change order status (triggers OrderObserver)
 - **Search**: By order number, customer name/email
 
 #### Inventory Management
+
 - **Stock Overview**: Products below threshold highlighted
 - **Stock History**: View StockTransactions per product
 - **Manual Adjustments**: Add/remove stock with reason
 
 #### Dashboard Analytics
+
 - Total sales (today, week, month)
 - Total orders count
 - Low stock products count
@@ -410,48 +437,52 @@ Upload (Polymorphic)
 ### 4. Automated Features
 
 #### Low Stock Notifications
+
 - **Trigger**: Stock falls below `stock_threshold` (1-3 pieces)
-- **Implementation**: 
-  - Dispatched via Laravel Job/Queue
-  - Triggered after stock update (Stripe webhook, manual adjustment)
-  - Debounced to prevent spam (once per product per day)
+- **Implementation**:
+    - Dispatched via Laravel Job/Queue
+    - Triggered after stock update (Stripe webhook, manual adjustment)
+    - Debounced to prevent spam (once per product per day)
 - **Recipient**: Admin users (where `is_admin = true`)
-- **Content**: 
-  - Product name, ID
-  - Current stock level
-  - Threshold value
-  - Link to product edit page
+- **Content**:
+    - Product name, ID
+    - Current stock level
+    - Threshold value
+    - Link to product edit page
 
 #### Daily Sales Report
+
 - **Schedule**: Every day at 8:00 PM (configurable)
 - **Implementation**: Laravel Task Scheduling (cron job)
 - **Recipient**: Admin users
 - **Content**:
-  - Date range (last 24 hours)
-  - Total orders count
-  - Total revenue
-  - Products sold (name, quantity, revenue)
-  - Top-selling products
-  - Orders by status breakdown
+    - Date range (last 24 hours)
+    - Total orders count
+    - Total revenue
+    - Products sold (name, quantity, revenue)
+    - Top-selling products
+    - Orders by status breakdown
 
 ### 5. Payment Integration
 
 #### Stripe Checkout Flow
+
 1. User completes checkout form
 2. Backend creates Stripe PaymentIntent
 3. Frontend redirects to Stripe Checkout
 4. User completes payment
 5. Stripe webhook fires `payment_intent.succeeded`
 6. Backend processes webhook:
-   - Verify payment signature
-   - Update order payment_status to 'paid'
-   - Update order status to 'paid'
-   - Decrement product stock
-   - Create StockTransaction records (operation: 'remove')
-   - Check stock levels → trigger low stock notification if needed
-   - Send order confirmation email to customer
+    - Verify payment signature
+    - Update order payment_status to 'paid'
+    - Update order status to 'paid'
+    - Decrement product stock
+    - Create StockTransaction records (operation: 'remove')
+    - Check stock levels → trigger low stock notification if needed
+    - Send order confirmation email to customer
 
 #### Webhook Security
+
 - Verify Stripe signature
 - Idempotency handling (prevent duplicate processing)
 - Log all webhook events
@@ -464,6 +495,7 @@ Upload (Polymorphic)
 ### **Phase 1: Project Setup & Foundation** (Days 1-2)
 
 #### 1.1 Laravel Installation & Configuration
+
 - [✅] Install Laravel 12.x
 - [✅] Configure `.env` (database, mail, queue, Stripe keys)
 - [✅] Install Laravel Breeze with Vue + Inertia
@@ -472,18 +504,21 @@ Upload (Polymorphic)
 - [✅] Set up Git repository
 
 #### 1.2 Database Setup
+
 - [✅] Create all migrations (users, visitors, products, uploads, carts, cart_items, addresses, orders, order_items, stock_transactions)
 - [✅] Add indexes and foreign keys
 - [✅] Create OrderStatusEnum
 - [✅] Run migrations
 
 #### 1.3 Model Creation
+
 - [✅] Create all Eloquent models with relationships
 - [✅] Define fillable/guarded properties
 - [✅] Add casts (especially for enums)
 - [✅] Implement soft deletes where needed
 
 #### 1.4 Seeders
+
 - [✅] AdminUserSeeder (create admin user)
 - [✅] ProductSeeder (sample cosmetics products)
 - [✅] DatabaseSeeder (orchestrate all seeders)
@@ -493,53 +528,61 @@ Upload (Polymorphic)
 ### **Phase 2: Core Backend Development** (Days 3-5)
 
 #### 2.1 Authentication & User Management
-- [ ] Extend Breeze registration to handle fingerprint
-- [ ] Create middleware for admin access
-- [ ] Implement user profile update functionality
-- [ ] Address CRUD operations
+
+- [✅] Extend Breeze registration to handle fingerprint
+- [✅] Create middleware for admin access (AdminMiddleware.php)
+- [✅] Implement user profile update functionality (ProfileController.php)
+- [✅] Address CRUD operations (AddressService.php)
 
 #### 2.2 Visitor & Fingerprint System
-- [ ] Create VisitorService to generate/retrieve visitor by fingerprint
-- [ ] Implement fingerprint generation (browser data + IP + device info)
-- [ ] Middleware to identify/create visitor on each request
+
+- [✅] Create VisitorService to generate/retrieve visitor by fingerprint
+- [✅] Implement fingerprint generation (browser data + IP + device info)
+- [ ] Middleware to identify/create visitor on each request (VisitorMiddleware - NOT IMPLEMENTED)
 
 #### 2.3 Product Management
-- [ ] ProductController (CRUD for admin)
-- [ ] ProductApiController (public product listing/detail)
-- [ ] Upload handling for product images (polymorphic)
-- [ ] Product search and filtering
-- [ ] Stock validation logic
+
+- [✅] ProductController (CRUD for admin)
+- [✅] ProductApiController (public product listing/detail)
+- [✅] Upload handling for product images (polymorphic) - UploadService.php
+- [✅] Product search and filtering
+- [✅] Stock validation logic
 
 #### 2.4 Cart System
-- [ ] CartService (business logic for cart operations)
-- [ ] CartController (API endpoints)
-- [ ] Cart accessors for total calculation (getTotalAttribute, getSubtotalAttribute)
-- [ ] CartItem accessors (getItemTotalAttribute)
-- [ ] Guest cart → User cart transfer logic
+
+- [✅] CartService (business logic for cart operations)
+- [✅] CartController (API endpoints)
+- [✅] Cart accessors for total calculation (getTotalAttribute, getSubtotalAttribute)
+- [✅] CartItem accessors (getItemTotalAttribute)
+- [✅] Guest cart → User cart transfer logic
 
 #### 2.5 Order Processing
-- [ ] OrderService (checkout logic)
-- [ ] OrderController (create order, view orders)
-- [ ] Order calculation and storage
-- [ ] OrderItem creation with product snapshots
-- [ ] Cart cleanup after order creation
+
+- [✅] OrderService (checkout logic)
+- [✅] OrderController (create order, view orders)
+- [✅] Order calculation and storage
+- [✅] OrderItem creation with product snapshots
+- [✅] Cart cleanup after order creation
 
 ---
 
 ### **Phase 3: Payment Integration** (Days 6-7)
 
 #### 3.1 Stripe Setup
+
 - [✅] Configure Stripe API keys in `.env`
 - [✅] Set up Stripe webhook endpoint
 - [✅] Create StripeWebhookController
 - [✅] Implement `payment_intent.succeeded` handler
 
 #### 3.2 Checkout Flow
+
 - [✅] Create PaymentIntent on checkout initiation
 - [✅] Frontend Stripe Checkout integration
 - [✅] Handle payment success/failure
 
 #### 3.3 Stock Management
+
 - [✅] StockService (handle stock operations)
 - [✅] Create StockTransaction on stock changes
 - [✅] Implement stock decrement on successful payment
@@ -550,20 +593,23 @@ Upload (Polymorphic)
 ### **Phase 4: Automated Features** (Days 8-9)
 
 #### 4.1 Low Stock Notifications
-- [ ] Create LowStockNotificationJob
-- [ ] Create LowStockMail (Mailable)
-- [ ] Implement debouncing logic (cache-based)
-- [ ] Trigger job after stock updates
-- [ ] Configure queue worker
+
+- [✅] Create StockNotificationJob (app/Jobs/StockNotificationJob.php)
+- [✅] Email notification via NotificationService (app/Services/NotificationService.php)
+- [✅] Trigger job after stock updates (in StockService.php)
+- [✅] Configure queue worker
+- [✅] Schedule job every 15 minutes (routes/console.php)
 
 #### 4.2 Daily Sales Report
-- [ ] Create DailySalesReportCommand
-- [ ] Create DailySalesReportMail (Mailable)
-- [ ] Implement sales data aggregation
-- [ ] Schedule command in Kernel.php
+
+- [ ] Create DailySalesReportCommand (NOT IMPLEMENTED)
+- [ ] Create DailySalesReportMail (NOT IMPLEMENTED - use NotificationService instead)
+- [ ] Implement sales data aggregation (NOT IMPLEMENTED)
+- [ ] Schedule command in routes/console.php (NOT IMPLEMENTED)
 - [ ] Test with `php artisan schedule:run`
 
 #### 4.3 Order Observer
+
 - [✅] Create OrderObserver
 - [✅] Monitor `status` attribute changes
 - [✅] Trigger notifications based on status transitions
@@ -576,6 +622,7 @@ Upload (Polymorphic)
 #### 5.1 Public Pages (Vue Components)
 
 ##### **Homepage** (`/resources/js/pages/Home.vue`) ✅
+
 - Hero section with gradient background
 - Featured products grid (4 columns)
 - Features section (Natural Ingredients, Cruelty Free, Premium Quality)
@@ -583,19 +630,21 @@ Upload (Polymorphic)
 - Responsive design for mobile/tablet/desktop
 
 ##### **Products Listing** (`/resources/js/pages/Products/Index.vue`) ✅
+
 - Product grid with cards (responsive: 1/2/3/4 columns)
 - Search functionality with real-time filtering
 - Sort options (Name, Price Low/High, Newest)
 - Product cards showing:
-  - Product image placeholder
-  - Name, description (truncated)
-  - Price
-  - Stock status
-  - "View Details" button
+    - Product image placeholder
+    - Name, description (truncated)
+    - Price
+    - Stock status
+    - "View Details" button
 - Empty state for no results
 - Filter controls (search, sort, clear)
 
 ##### **Product Detail** (`/resources/js/pages/Products/Show.vue`) ✅
+
 - Large product image display
 - Product information (name, price, description)
 - Stock status indicator with low stock warning
@@ -607,19 +656,20 @@ Upload (Polymorphic)
 - Toast notifications for cart actions
 
 ##### **Shopping Cart** (`/resources/js/pages/Cart/Index.vue`) ✅
+
 - Cart items list with:
-  - Product thumbnail
-  - Product name (linked to detail page)
-  - Price per unit
-  - Quantity controls (+/-, direct input)
-  - Remove item button
-  - Item total with discount display
+    - Product thumbnail
+    - Product name (linked to detail page)
+    - Price per unit
+    - Quantity controls (+/-, direct input)
+    - Remove item button
+    - Item total with discount display
 - Order summary sidebar:
-  - Subtotal
-  - Discount (if applicable)
-  - Tax
-  - Shipping (Free)
-  - Grand total
+    - Subtotal
+    - Discount (if applicable)
+    - Tax
+    - Shipping (Free)
+    - Grand total
 - "Proceed to Checkout" button
 - "Continue Shopping" button
 - "Clear Cart" functionality
@@ -628,25 +678,27 @@ Upload (Polymorphic)
 - Sticky order summary on desktop
 
 ##### **Orders List** (`/resources/js/pages/Orders/Index.vue`) ✅
+
 - Requires authentication
 - Order cards showing:
-  - Order UUID (truncated)
-  - Order date
-  - Status badge with color coding
-  - Total amount
-  - Order items preview
-  - Order summary (subtotal, tax, shipping, total)
-  - "View Details" and "Reorder" buttons
+    - Order UUID (truncated)
+    - Order date
+    - Status badge with color coding
+    - Total amount
+    - Order items preview
+    - Order summary (subtotal, tax, shipping, total)
+    - "View Details" and "Reorder" buttons
 - Empty state for users with no orders
 - Status colors:
-  - Pending: Gray
-  - Paid: Green
-  - Processing: Blue
-  - Shipped: Purple
-  - Delivered: Green
-  - Cancelled: Red
+    - Pending: Gray
+    - Paid: Green
+    - Processing: Blue
+    - Shipped: Purple
+    - Delivered: Green
+    - Cancelled: Red
 
 ##### **Order Detail** (`/resources/js/pages/Orders/Show.vue`) ✅
+
 - Full order information display
 - Order items section with product details
 - Shipping address card
@@ -658,103 +710,114 @@ Upload (Polymorphic)
 - Back to orders navigation
 - Responsive layout (2-column on desktop, stacked on mobile)
 
-##### **Checkout Page** (To be implemented)
-- [ ] Guest/User information form
-- [ ] Address selection/creation
-- [ ] Order review section
+##### **Checkout Page** (`/resources/js/pages/Checkout/Index.vue`) ✅
+
+- [✅] Guest/User information form
+- [✅] Address selection/creation
+- [✅] Order review section
 - [✅] Stripe payment integration
-- [ ] Terms and conditions checkbox
-- [ ] Place order button
-- [ ] Loading states during payment processing
+- [✅] Terms and conditions checkbox
+- [✅] Place order button
+- [✅] Loading states during payment processing
 
-##### **Order Confirmation** (To be implemented)
-- [ ] Success message
-- [ ] Order summary
-- [ ] Order number display
-- [ ] Next steps information
-- [ ] Continue shopping button
+##### **Order Confirmation** (CheckoutController@success) ✅
 
-##### **User Dashboard** (To be implemented)
-- [ ] Overview of recent orders
-- [ ] Saved addresses management
-- [ ] Profile information
-- [ ] Order history quick access
+- [✅] Success message
+- [✅] Order summary
+- [✅] Order number display
+- [✅] Next steps information
+- [✅] Continue shopping button
+
+##### **User Dashboard** (`/resources/js/pages/Profile/`) ✅
+
+- [✅] Overview of recent orders (via Orders page)
+- [✅] Saved addresses management (ProfileController)
+- [✅] Profile information
+- [✅] Order history quick access
 
 #### 5.2 Admin Panel (Vue Components)
 
-##### **Admin Dashboard** (To be implemented)
-- [ ] Sales statistics cards
-  - [ ] Today's revenue
-  - [ ] Total orders (today/week/month)
-  - [ ] Low stock products count
-  - [ ] Total products count
-- [ ] Recent orders table
-- [ ] Low stock alerts section
+##### **Admin Dashboard** (`/resources/js/pages/Admin/Dashboard.vue`) ✅
+
+- [✅] Sales statistics cards
+    - [✅] Today's revenue
+    - [✅] Total orders (today/week/month)
+    - [✅] Low stock products count
+    - [✅] Total products count
+- [✅] Recent orders table
+- [✅] Low stock alerts section
 - [ ] Sales chart (optional)
-- [ ] Quick actions (Add Product, View Orders, Manage Inventory)
+- [✅] Quick actions (Add Product, View Orders, Manage Inventory)
 
-##### **Product Management** (To be implemented)
-- [ ] Products list table with:
-  - [ ] Product image thumbnail
-  - [ ] Name, price, stock
-  - [ ] Status (active/inactive)
-  - [ ] Edit/Delete actions
-- [ ] Create product form
-- [ ] Edit product form
-- [ ] Image upload interface (drag & drop)
-- [ ] Multiple images support (polymorphic Upload model)
-- [ ] Stock threshold configuration
-- [ ] Product activation toggle
+##### **Product Management** (`/resources/js/pages/Admin/Products/`) ✅
 
-##### **Order Management** (To be implemented)
-- [ ] Orders list with filters (status, date range)
-- [ ] Order detail view (admin version)
-- [ ] Status update functionality
-- [ ] Order notes/comments
-- [ ] Print invoice option
-- [ ] Bulk actions (export, status update)
+- [✅] Products list table with:
+    - [✅] Product image thumbnail
+    - [✅] Name, price, stock
+    - [✅] Status (active/inactive)
+    - [✅] Edit/Delete actions
+- [✅] Create product form
+- [✅] Edit product form
+- [✅] Image upload interface (drag & drop) - UploadComponent.vue
+- [✅] Multiple images support (polymorphic Upload model)
+- [✅] Stock threshold configuration
+- [✅] Product activation toggle
 
-##### **Inventory Management** (To be implemented)
-- [ ] Stock overview table
-- [ ] Low stock products highlighted
-- [ ] Manual stock adjustment form
-- [ ] Stock transaction history per product
-- [ ] Bulk stock import (CSV)
-- [ ] Stock alerts configuration
+##### **Order Management** (`/resources/js/pages/Admin/Orders/`) ✅
 
-##### **Stock Transactions** (To be implemented)
-- [ ] Transaction history table
-- [ ] Filters (product, operation type, date)
-- [ ] Transaction details (quantity, reason, performed by)
-- [ ] Reserved/Returned/Damaged flags display
+- [✅] Orders list with filters (status, date range)
+- [✅] Order detail view (admin version)
+- [✅] Status update functionality
+- [✅] Order notes/comments
+- [ ] Print invoice option (NOT IMPLEMENTED)
+- [ ] Bulk actions (export, status update) (NOT IMPLEMENTED)
+
+##### **Inventory Management** (`/resources/js/pages/Admin/Stock/`) ✅
+
+- [✅] Stock overview table
+- [✅] Low stock products highlighted
+- [✅] Manual stock adjustment form
+- [✅] Stock transaction history per product
+- [ ] Bulk stock import (CSV) (NOT IMPLEMENTED)
+- [✅] Stock alerts configuration
+
+##### **Stock Transactions** (Admin StockController@transactions) ✅
+
+- [✅] Transaction history table
+- [✅] Filters (product, operation type, date)
+- [✅] Transaction details (quantity, reason, performed by)
+- [ ] Reserved/Returned/Damaged flags display (NOT IMPLEMENTED)
 
 #### 5.3 Shared Components & Layouts
 
 ##### **AppLayout** (Existing from Breeze)
+
 - Main application layout wrapper
 - Navigation header with:
-  - Logo/Brand
-  - Main navigation links
-  - Cart icon with item count badge
-  - User menu (authenticated)
-  - Login/Register (guest)
+    - Logo/Brand
+    - Main navigation links
+    - Cart icon with item count badge
+    - User menu (authenticated)
+    - Login/Register (guest)
 - Footer section
 - Mobile responsive menu
 
-##### **Reusable Components** (To be implemented)
-- [ ] **ProductCard**: Standardized product display
-- [ ] **StatusBadge**: Order status with colors
-- [ ] **PriceDisplay**: Formatted currency display
-- [ ] **QuantitySelector**: +/- buttons with input
-- [ ] **LoadingSpinner**: Loading states
-- [ ] **EmptyState**: No data placeholders
-- [ ] **ConfirmDialog**: Action confirmations
-- [ ] **ImageUploader**: Drag & drop image upload
-- [ ] **Pagination**: Page navigation
-- [ ] **SearchInput**: Search with debouncing
-- [ ] **FilterPanel**: Advanced filtering UI
+##### **Reusable Components** ✅
+
+- [✅] **ProductCard**: Standardized product display (ProductCard.vue)
+- [✅] **StatusBadge**: Order status with colors (Badge from shadcn/ui)
+- [✅] **PriceDisplay**: Formatted currency display
+- [✅] **QuantitySelector**: +/- buttons with input
+- [✅] **LoadingSpinner**: Loading states (Skeleton from shadcn/ui)
+- [✅] **EmptyState**: No data placeholders
+- [✅] **ConfirmDialog**: Action confirmations (ConfirmDialog.vue)
+- [✅] **ImageUploader**: Drag & drop image upload (UploadComponent.vue)
+- [✅] **Pagination**: Page navigation (Pagination.vue)
+- [✅] **SearchInput**: Search with debouncing
+- [ ] **FilterPanel**: Advanced filtering UI (NOT IMPLEMENTED)
 
 ##### **UI Components** (Already available from shadcn/ui)
+
 - ✅ Button
 - ✅ Card (Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter)
 - ✅ Input
@@ -771,6 +834,7 @@ Upload (Polymorphic)
 #### 5.4 Frontend Features Implementation
 
 ##### **Cart Management**
+
 - Real-time cart updates via Inertia
 - Optimistic UI updates
 - Cart persistence (database-backed)
@@ -778,6 +842,7 @@ Upload (Polymorphic)
 - Cart item count in header badge
 
 ##### **Product Search & Filtering**
+
 - Client-side search with debouncing
 - Server-side filtering for large datasets
 - Sort options (name, price, date)
@@ -785,6 +850,7 @@ Upload (Polymorphic)
 - Price range filtering (optional)
 
 ##### **Responsive Design**
+
 - Mobile-first approach
 - Breakpoints: sm (640px), md (768px), lg (1024px), xl (1280px)
 - Touch-friendly controls on mobile
@@ -792,6 +858,7 @@ Upload (Polymorphic)
 - Sticky cart summary on desktop
 
 ##### **User Experience Enhancements**
+
 - Loading states for all async operations
 - Toast notifications for user actions
 - Form validation with error messages
@@ -801,25 +868,28 @@ Upload (Polymorphic)
 - Empty states with helpful CTAs
 
 ##### **Performance Optimizations**
+
 - Lazy loading for images
 - Code splitting for routes
 - Debounced search inputs
 - Optimistic UI updates
 - Cached data where appropriate
-- [ ] Search bar component
-- [ ] Modal components
-- [ ] Form components (input, select, textarea)
+- [✅] Search bar component
+- [✅] Modal components (Dialog from shadcn/ui)
+- [✅] Form components (input, select, textarea from shadcn/ui)
 
 #### 5.4 State Management
-- [ ] Cart state (Pinia)
-- [ ] User state
-- [ ] Product filters state
+
+- [✅] Cart state (via Inertia shared data)
+- [✅] User state (via Inertia auth)
+- [✅] Product filters state (component-level)
 
 ---
 
 ### **Phase 6: Testing & Quality Assurance** (Days 15-16)
 
 #### 6.1 Backend Testing
+
 - [ ] Feature tests for authentication
 - [ ] Feature tests for cart operations
 - [ ] Feature tests for checkout flow
@@ -828,10 +898,12 @@ Upload (Polymorphic)
 - [ ] Test Stripe webhook handling
 
 #### 6.2 Frontend Testing
+
 - [ ] Component tests (Vue Test Utils)
 - [ ] E2E tests for critical flows (optional: Cypress/Playwright)
 
 #### 6.3 Manual Testing
+
 - [ ] Guest checkout flow
 - [ ] User registration and login
 - [ ] Cart operations (add, update, remove)
@@ -846,6 +918,7 @@ Upload (Polymorphic)
 ### **Phase 7: Deployment Preparation** (Days 17-18)
 
 #### 7.1 Production Configuration
+
 - [ ] Environment variables documentation
 - [ ] Database optimization (indexes review)
 - [ ] Queue configuration (Redis recommended)
@@ -853,6 +926,7 @@ Upload (Polymorphic)
 - [ ] Stripe webhook URL configuration
 
 #### 7.2 Security Hardening
+
 - [ ] CSRF protection verification
 - [ ] XSS prevention review
 - [ ] SQL injection prevention (Eloquent usage)
@@ -860,6 +934,7 @@ Upload (Polymorphic)
 - [ ] Admin route protection
 
 #### 7.3 Performance Optimization
+
 - [ ] Eager loading relationships (N+1 prevention)
 - [ ] Database query optimization
 - [ ] Asset compilation and minification
@@ -871,6 +946,7 @@ Upload (Polymorphic)
 ## Security & Best Practices
 
 ### Authentication & Authorization
+
 - Laravel Breeze for secure authentication
 - Password hashing (bcrypt)
 - CSRF token validation on all forms
@@ -878,12 +954,14 @@ Upload (Polymorphic)
 - Rate limiting on login attempts
 
 ### Data Validation
+
 - Form Request validation for all inputs
 - Server-side validation (never trust client)
 - Sanitize user inputs
 - Validate file uploads (type, size)
 
 ### Payment Security
+
 - Never store credit card information
 - Use Stripe's secure checkout
 - Verify webhook signatures
@@ -891,6 +969,7 @@ Upload (Polymorphic)
 - Log all payment transactions
 
 ### Database Security
+
 - Use Eloquent ORM (prevents SQL injection)
 - Parameterized queries
 - Soft deletes for sensitive data
@@ -898,12 +977,14 @@ Upload (Polymorphic)
 - Environment-based credentials
 
 ### File Upload Security
+
 - Validate file types and sizes
 - Store uploads outside public directory
 - Generate unique filenames
 - Scan for malware (optional)
 
 ### Code Quality
+
 - Follow PSR-12 coding standards
 - Use Laravel Pint for code formatting
 - Implement service classes for business logic
@@ -916,11 +997,13 @@ Upload (Polymorphic)
 ## Testing Strategy
 
 ### Unit Tests
+
 - Service classes (CartService, OrderService, StockService)
 - Helper functions
 - Model methods and accessors
 
 ### Feature Tests
+
 - Authentication flows
 - Cart operations (add, update, remove)
 - Checkout process
@@ -929,12 +1012,14 @@ Upload (Polymorphic)
 - Webhook handling
 
 ### Integration Tests
+
 - Stripe payment flow
 - Email sending
 - Queue job processing
 - Scheduled tasks
 
 ### Manual Testing Checklist
+
 - [ ] Guest can browse products
 - [ ] Guest can add products to cart
 - [ ] Guest cart persists across sessions
@@ -957,6 +1042,7 @@ Upload (Polymorphic)
 ## Deployment Checklist
 
 ### Pre-Deployment
+
 - [ ] All tests passing
 - [ ] Code reviewed and merged
 - [ ] Database migrations ready
@@ -964,6 +1050,7 @@ Upload (Polymorphic)
 - [ ] Environment variables documented
 
 ### Server Setup
+
 - [ ] PHP 8.2+ installed
 - [ ] Composer installed
 - [ ] Node.js & NPM installed
@@ -973,6 +1060,7 @@ Upload (Polymorphic)
 - [ ] Domain configured
 
 ### Application Deployment
+
 - [ ] Clone repository
 - [ ] Run `composer install --optimize-autoloader --no-dev`
 - [ ] Run `npm install && npm run build`
@@ -985,24 +1073,28 @@ Upload (Polymorphic)
 - [ ] Configure web server (Nginx/Apache)
 
 ### Stripe Configuration
+
 - [ ] Add production Stripe API keys to `.env`
 - [ ] Configure webhook endpoint in Stripe dashboard
 - [ ] Add webhook signing secret to `.env`
 - [ ] Test webhook delivery
 
 ### Queue & Scheduler Setup
+
 - [ ] Configure queue worker as systemd service
 - [ ] Set up cron job: `* * * * * cd /path && php artisan schedule:run >> /dev/null 2>&1`
 - [ ] Test queue processing
 - [ ] Test scheduled tasks
 
 ### Email Configuration
+
 - [ ] Configure Mailsuite credentials
 - [ ] Test email sending
 - [ ] Verify low stock notification
 - [ ] Verify daily sales report
 
 ### Monitoring & Maintenance
+
 - [ ] Set up error logging (Laravel Log, Sentry, etc.)
 - [ ] Configure application monitoring
 - [ ] Set up database backups
@@ -1014,6 +1106,7 @@ Upload (Polymorphic)
 ## API Endpoints Overview
 
 ### Public Endpoints
+
 ```
 GET    /products              - List all products
 GET    /products/{id}         - Get product details
@@ -1026,6 +1119,7 @@ POST   /checkout              - Process checkout
 ```
 
 ### Authenticated User Endpoints
+
 ```
 GET    /user/orders           - Get user orders
 GET    /user/orders/{id}      - Get order details
@@ -1036,6 +1130,7 @@ DELETE /user/addresses/{id}   - Delete address
 ```
 
 ### Admin Endpoints
+
 ```
 GET    /admin/products        - List all products (with filters)
 POST   /admin/products        - Create product
@@ -1054,6 +1149,7 @@ GET    /admin/dashboard       - Get dashboard statistics
 ```
 
 ### Webhook Endpoints
+
 ```
 POST   /stripe/webhook            - Stripe webhook handler
 ```
@@ -1189,6 +1285,7 @@ trust-factory-shop/
 ## Future Enhancements (Post-MVP)
 
 ### Phase 2 Features
+
 - Product categories and filtering
 - Product reviews and ratings
 - Wishlist functionality
@@ -1199,7 +1296,6 @@ trust-factory-shop/
 - Product recommendations
 - Advanced analytics dashboard
 
-
 ## Conclusion
 
 This comprehensive plan outlines the complete development lifecycle for the Trust Factory Shop e-commerce platform. The project is structured in clear phases with specific deliverables, ensuring a systematic approach to building a robust, scalable, and secure online cosmetics store.
@@ -1207,6 +1303,7 @@ This comprehensive plan outlines the complete development lifecycle for the Trus
 **Estimated Timeline**: 18 days (full-time development)
 
 **Key Success Factors**:
+
 1. Adherence to Laravel best practices
 2. Comprehensive testing at each phase
 3. Security-first approach

@@ -138,7 +138,7 @@ class CheckoutService
 
     /**
      * Process checkout - main method that orchestrates the checkout flow
-     * 
+     *
      * NOTE: Cart is preserved during checkout and only deleted after successful payment
      * via Stripe webhook (see StripeEventListener). This ensures cart remains intact
      * if payment fails or user cancels.

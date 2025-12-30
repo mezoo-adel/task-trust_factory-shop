@@ -60,7 +60,7 @@ const validatePassword = (password: string): boolean => {
 // Individual field validation on blur
 const validateField = (fieldName: string, value: string) => {
     touched.value[fieldName] = true;
-    
+
     switch (fieldName) {
         case 'name':
             if (isGuest.value && !value.trim()) {
@@ -69,7 +69,7 @@ const validateField = (fieldName: string, value: string) => {
                 delete validationErrors.value.name;
             }
             break;
-            
+
         case 'email':
             if (!value.trim()) {
                 validationErrors.value.email = 'Email is required';
@@ -79,17 +79,15 @@ const validateField = (fieldName: string, value: string) => {
                 delete validationErrors.value.email;
             }
             break;
-            
+
         case 'phone':
-            if (!value.trim()) {
-                validationErrors.value.phone = 'Phone number is required';
-            } else if (!validatePhone(value)) {
+            if (!validatePhone(value)) {
                 validationErrors.value.phone = 'Please enter a valid phone number';
             } else {
                 delete validationErrors.value.phone;
             }
             break;
-            
+
         case 'address':
             if (!value.trim()) {
                 validationErrors.value.address = 'Shipping address is required';
@@ -97,7 +95,7 @@ const validateField = (fieldName: string, value: string) => {
                 delete validationErrors.value.address;
             }
             break;
-            
+
         case 'password':
             if (isGuest.value) {
                 if (!value) {
@@ -113,7 +111,7 @@ const validateField = (fieldName: string, value: string) => {
                 }
             }
             break;
-            
+
         case 'password_confirmation':
             if (isGuest.value) {
                 if (!value) {
@@ -168,7 +166,7 @@ const validateForm = (): boolean => {
     Object.keys(form.value).forEach(key => {
         touched.value[key] = true;
     });
-    
+
     // Validate all fields
     if (isGuest.value) {
         validateField('name', form.value.name);
@@ -183,14 +181,14 @@ const validateForm = (): boolean => {
             validateField('address', form.value.address);
         }
     }
-    
+
     validateField('email', form.value.email);
-    
+
     if (isGuest.value) {
         validateField('password', form.value.password);
         validateField('password_confirmation', form.value.password_confirmation);
     }
-    
+
     return Object.keys(validationErrors.value).length === 0;
 };
 
@@ -202,7 +200,7 @@ const submitCheckout = async () => {
 
     // Create a FormData object
     const formData = new FormData();
-    
+
     // Add form fields
     Object.keys(form.value).forEach(key => {
         const value = (form.value as any)[key];
@@ -319,15 +317,15 @@ const submitCheckout = async () => {
                                                 class="mt-1.5"
                                                 @blur="validateField('name', form.name)"
                                             />
-                                            <InputError 
-                                                :message="apiErrors.name || (touched.name ? validationErrors.name : '')" 
-                                                class="mt-1" 
+                                            <InputError
+                                                :message="apiErrors.name || (touched.name ? validationErrors.name : '')"
+                                                class="mt-1"
                                             />
                                         </div>
                                     </div>
 
                                     <!-- Contact Information -->
-                                    <div class="grid gap-4 md:grid-cols-2">
+                                    <div v-if="isGuest" class="grid gap-4 md:grid-cols-2">
                                         <div>
                                             <Label for="email">Email Address</Label>
                                             <Input
@@ -340,16 +338,16 @@ const submitCheckout = async () => {
                                                 class="mt-1.5"
                                                 @blur="validateField('email', form.email)"
                                             />
-                                            <InputError 
-                                                :message="apiErrors.email || (touched.email ? validationErrors.email : '')" 
-                                                class="mt-1" 
+                                            <InputError
+                                                :message="apiErrors.email || (touched.email ? validationErrors.email : '')"
+                                                class="mt-1"
                                             />
                                         </div>
                                     </div>
 
                                     <!-- Address Form (for guests or when adding new address) -->
                                     <div v-if="isGuest || showAddressForm" class="grid gap-4 md:grid-cols-2">
-                                        <div>                                           
+                                        <div>
                                              <Label for="full_name">Shipping Name</Label>
                                             <Input
                                                 id="full_name"
@@ -361,9 +359,9 @@ const submitCheckout = async () => {
                                                 class="mt-1.5"
                                                 @blur="validateField('full_name', form.full_name)"
                                             />
-                                            <InputError 
-                                                :message="apiErrors.full_name || (touched.full_name ? validationErrors.full_name : '')" 
-                                                class="mt-1" 
+                                            <InputError
+                                                :message="apiErrors.full_name || (touched.full_name ? validationErrors.full_name : '')"
+                                                class="mt-1"
                                             />
                                         </div>
                                         <div>
@@ -378,9 +376,9 @@ const submitCheckout = async () => {
                                                 class="mt-1.5"
                                                 @blur="validateField('phone', form.phone)"
                                             />
-                                            <InputError 
-                                                :message="apiErrors.phone || (touched.phone ? validationErrors.phone : '')" 
-                                                class="mt-1" 
+                                            <InputError
+                                                :message="apiErrors.phone || (touched.phone ? validationErrors.phone : '')"
+                                                class="mt-1"
                                             />
                                         </div>
 
@@ -396,9 +394,9 @@ const submitCheckout = async () => {
                                                 class="mt-1.5"
                                                 @blur="validateField('address', form.address)"
                                             />
-                                            <InputError 
-                                                :message="apiErrors.address || (touched.address ? validationErrors.address : '')" 
-                                                class="mt-1" 
+                                            <InputError
+                                                :message="apiErrors.address || (touched.address ? validationErrors.address : '')"
+                                                class="mt-1"
                                             />
                                         </div>
                                     </div>
@@ -417,9 +415,9 @@ const submitCheckout = async () => {
                                                 class="mt-1.5"
                                                 @blur="validateField('password', form.password)"
                                             />
-                                            <InputError 
-                                                :message="apiErrors.password || (touched.password ? validationErrors.password : '')" 
-                                                class="mt-1" 
+                                            <InputError
+                                                :message="apiErrors.password || (touched.password ? validationErrors.password : '')"
+                                                class="mt-1"
                                             />
                                         </div>
 
@@ -435,9 +433,9 @@ const submitCheckout = async () => {
                                                 class="mt-1.5"
                                                 @blur="validateField('password_confirmation', form.password_confirmation)"
                                             />
-                                            <InputError 
-                                                :message="apiErrors.password_confirmation || (touched.password_confirmation ? validationErrors.password_confirmation : '')" 
-                                                class="mt-1" 
+                                            <InputError
+                                                :message="apiErrors.password_confirmation || (touched.password_confirmation ? validationErrors.password_confirmation : '')"
+                                                class="mt-1"
                                             />
                                         </div>
                                     </div>

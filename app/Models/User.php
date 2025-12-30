@@ -81,13 +81,14 @@ class User extends Authenticatable
 
     public function notificationChannels()
     {
-        return $this->belongsToMany(NotificationChannel::class, 'user_notification_subscriptions')
+        return $this
+            ->belongsToMany(NotificationChannel::class, 'user_notification_subscriptions')
             ->withPivot('is_subscribed')
             ->withTimestamps();
     }
 
-    public function admin()
+    public function scopeAdmin($query)
     {
-        return $this->where('is_admin', true);
+        return $query->where('is_admin', true);
     }
 }

@@ -76,7 +76,7 @@ const getStatusLabel = (status: string) => {
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                         <div>
                             <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-                                Order #{{ order.uuid.slice(0, 8) }}
+                                Order #{{ order.uuid }}
                             </h1>
                             <p class="text-gray-600">Placed on {{ formatDate(order.created_at) }}</p>
                         </div>
@@ -105,9 +105,9 @@ const getStatusLabel = (status: string) => {
                         <OrderDetailsCard :items="order.items" />
 
                         <!-- Shipping Address -->
-                        <AddressCard 
+                        <AddressCard
                             v-if="order.address"
-                            :address="order.address" 
+                            :address="order.address"
                             :show-label="false"
                             :show-default-badge="false"
                         />

@@ -37,7 +37,7 @@ class OrderObserver
             $oldStatus = $order->getOriginal('status');
             $newStatus = $order->status;
 
-            Log::info("Order {$order->id} status changed",['oldStatus' => $oldStatus, 'newStatus' => $newStatus]);
+            Log::info("Order {$order->id} status changed", ['oldStatus' => $oldStatus, 'newStatus' => $newStatus]);
 
             // Send appropriate notification based on new status
             match ($newStatus) {
@@ -62,7 +62,7 @@ class OrderObserver
         $this->notificationService->sendEmail(
             $order->user,
             'Order Received - #' . $order->uuid,
-            "Thank you for your order! We have received your order and will begin processing it shortly.\n\nOrder Number: {$order->uuid}\nTotal: $" . number_format($order->total, 2),
+            "Thank you for your order! We have received your order and will begin processing it shortly.\n\nOrder Number: {$order->uuid}\nTotal: \$" . number_format($order->total, 2),
             'View Order',
             route('orders.show', $order->uuid)
         );
@@ -72,7 +72,7 @@ class OrderObserver
         $this->notificationService->sendBulkEmail(
             $admins,
             'New Order Received - #' . $order->uuid,
-            "A new order has been placed by {$order->user->name}.\n\nOrder Number: {$order->uuid}\nTotal: $" . number_format($order->total, 2) . "\nItems: " . $order->items->count(),
+            "A new order has been placed by {$order->user->name}.\n\nOrder Number: {$order->uuid}\nTotal: \$" . number_format($order->total, 2) . "\nItems: " . $order->items->count(),
             'View Order Details',
             url('/admin/orders/' . $order->id)
         );

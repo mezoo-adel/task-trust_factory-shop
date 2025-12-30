@@ -12,14 +12,14 @@ class CartService
 {
     /**
      * Get or create a cart for the current user or guest
-     * 
+     *
      * For authenticated users: Retrieves existing cart by user_id or creates new one
      * For guests: Retrieves existing cart by visitor fingerprint or creates new one
-     * 
+     *
      * Cart persistence is guaranteed:
      * - User carts: Linked to user_id, persist across sessions
      * - Guest carts: Linked to visitor fingerprint (stored in session), persist across page visits
-     * 
+     *
      * @param int|null $userId Authenticated user ID
      * @param string|null $fingerprint Visitor fingerprint (from session)
      * @return Cart
@@ -38,7 +38,7 @@ class CartService
             // Guest user: get or create visitor, then get or create cart
             // This ensures cart is retrieved if it already exists for this fingerprint
             $visitor = Visitor::firstOrCreate(['fingerprint' => $fingerprint]);
-            
+
             // firstOrCreate will retrieve existing cart if visitor already has one
             return Cart::firstOrCreate(
                 ['visitor_id' => $visitor->id],
@@ -52,14 +52,14 @@ class CartService
     /**
      * Get existing cart by visitor fingerprint (without creating if not exists)
      * Useful for checking if cart exists before operations
-     * 
+     *
      * @param string $fingerprint Visitor fingerprint
      * @return Cart|null
      */
     public function getCartByFingerprint(string $fingerprint): ?Cart
     {
         $visitor = Visitor::where('fingerprint', $fingerprint)->first();
-        
+
         if (!$visitor) {
             return null;
         }
@@ -133,14 +133,14 @@ class CartService
     public function calculateTotals(Cart $cart): array
     {
         $cart->load('items.product');
-        
+
         $subtotal = 0;
         foreach ($cart->items as $item) {
             $subtotal += $item->product->price * $item->quantity;
         }
 
-        $tax = $subtotal * 0.1; // 10% tax
-        $shipping = 0; // Free shipping
+        $tax = $subtotal * (config('system.tax_percent') / 100);  // 10% tax
+        $shipping = config('system.shipping_cost');  // Free shipping
         $total = $subtotal + $tax + $shipping;
 
         return [
@@ -174,6 +174,3 @@ class CartService
         return $cartItemsData;
     }
 }
-
-
-

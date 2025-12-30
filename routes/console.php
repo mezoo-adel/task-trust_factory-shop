@@ -9,5 +9,5 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-// Schedule low stock notifications every 15 minutes
+// Schedule low stock notifications
 Schedule::job(new StockNotificationJob)->everyFifteenMinutes();

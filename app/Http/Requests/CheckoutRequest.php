@@ -21,11 +21,7 @@ class CheckoutRequest extends FormRequest
     public function rules(): array
     {
         $isAuthenticated = auth()->check();
-
-        $rules = [
-            'email' => 'required|email|max:255|unique:users,email',
-            'phone' => 'required|string|max:20',
-        ];
+        $rules = ['phone' => 'required|string|max:20'];
 
         // For authenticated users, they can either select an existing address or create a new one
         if ($isAuthenticated) {
@@ -34,6 +30,7 @@ class CheckoutRequest extends FormRequest
             $rules['full_name'] = 'nullable|string|max:255';
         } else {
             $rules['name'] = 'required|string|max:255';
+            $rules['email'] = 'required|email|max:255|unique:users,email';
             $rules['password'] = 'required|string|min:8|confirmed';
             $rules['full_name'] = 'nullable|string|max:255';
             $rules['address'] = 'required|string|max:500';
