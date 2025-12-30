@@ -1,5 +1,6 @@
 import { ref } from 'vue';
 import { useToast } from '@/components/ui/toast/use-toast';
+import useCsrf from './useCsrf';
 
 interface ApiResponse<T = any> {
     data?: T;
@@ -24,13 +25,9 @@ export function useApiFetch() {
     const error = ref<string | null>(null);
     const errors = ref<Record<string, string | string[]>>({});
 
-    const getCsrfToken = (): string | null => {
-        return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || null;
-    };
-
     const apiFetch = async <T = any>(
         url: string,
-        options: FetchOptions = {}
+        options: FetchOptions = {},
     ): Promise<ApiResponse<T> | null> => {
         const {
             method = 'GET',
@@ -47,10 +44,10 @@ export function useApiFetch() {
         errors.value = {};
 
         try {
-            const csrfToken = getCsrfToken();
-            
+            const csrfToken = useCsrf();
+
             const fetchHeaders: Record<string, string> = {
-                'Accept': 'application/json',
+                Accept: 'application/json',
                 'X-Requested-With': 'XMLHttpRequest',
                 ...headers,
             };
@@ -66,7 +63,7 @@ export function useApiFetch() {
                 } else {
                     fetchHeaders['Content-Type'] = 'application/json';
                     fetchBody = JSON.stringify(body);
-                    
+
                     // Add CSRF token to JSON body
                     if (csrfToken && method !== 'GET') {
                         const bodyObj = { ...body, _token: csrfToken };
@@ -82,10 +79,13 @@ export function useApiFetch() {
                 body: fetchBody,
             });
 
-            const data: ApiResponse<T> = await response.json().catch(() => ({}));
+            const data: ApiResponse<T> = await response
+                .json()
+                .catch(() => ({}));
 
             if (!response.ok) {
-                error.value = data.message || errorMessage || 'An error occurred';
+                error.value =
+                    data.message || errorMessage || 'An error occurred';
                 errors.value = data.errors || {};
 
                 if (showErrorToast) {
@@ -102,7 +102,10 @@ export function useApiFetch() {
             if (showSuccessToast) {
                 toast({
                     title: 'Success',
-                    description: successMessage || data.message || 'Operation completed successfully',
+                    description:
+                        successMessage ||
+                        data.message ||
+                        'Operation completed successfully',
                 });
             }
 
@@ -133,4 +136,3 @@ export function useApiFetch() {
         errors,
     };
 }
-
