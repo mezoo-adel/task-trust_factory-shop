@@ -30,11 +30,8 @@ jobs:
             git config pull.rebase false
             git commit -am "update remote server"
             git pull
-            # git pull origin main
-            # git push
             COMPOSER_ALLOW_SUPERUSER=1 composer install --no-interaction --optimize-autoloader
             php artisan migrate --force
-            # php artisan db:seed --class=RolesAndPermissionSeeder --force
             npm run build -f
             php artisan optimize:clear
-            # sudo supervisorctl restart all
+            sudo supervisorctl restart all
