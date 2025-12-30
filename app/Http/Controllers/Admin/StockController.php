@@ -9,15 +9,17 @@ use App\Http\Requests\Admin\AdjustStockRequest;
 use App\Models\Product;
 use App\Models\StockTransaction;
 use App\Services\StockService;
-use DB;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use DB;
 
 class StockController extends Controller
 {
     public function __construct(
         private StockService $stockService
-    ) {}
+    ) {
+        parent::__construct();
+    }
 
     public function index(Request $request, ProductFilter $filter)
     {

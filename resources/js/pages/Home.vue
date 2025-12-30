@@ -89,7 +89,7 @@ const formatPrice = (price: number) => {
                                 size="lg"
                                 class="text-base"
                             >
-                                <Link href="/about"> Learn More </Link>
+                                <Link href="/products"> Learn More </Link>
                             </Button>
                         </div>
                     </div>

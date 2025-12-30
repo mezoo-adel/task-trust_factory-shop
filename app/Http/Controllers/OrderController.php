@@ -12,6 +12,7 @@ class OrderController extends Controller
     public function __construct(
         private OrderService $orderService
     ) {
+        parent::__construct();
     }
 
     public function index(): Response

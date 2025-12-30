@@ -10,7 +10,7 @@ class HomeController extends Controller
 {
     public function index(): Response
     {
-        $featuredProducts = Product::where('is_active', true)
+        $featuredProducts = Product::active()
             ->orderBy('created_at', 'desc')
             ->limit(8)
             ->get();

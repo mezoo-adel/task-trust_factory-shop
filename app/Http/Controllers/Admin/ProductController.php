@@ -15,7 +15,9 @@ class ProductController extends Controller
 {
     public function __construct(
         protected ProductService $productService
-    ) {}
+    ) {
+        parent::__construct();
+    }
 
     public function index(Request $request, ProductFilter $filter)
     {

@@ -14,7 +14,9 @@ class AdminUserController extends Controller
 {
     public function __construct(
         private AdminUserService $adminUserService
-    ) {}
+    ) {
+        parent::__construct();
+    }
 
     public function index(Request $request, UserFilter $filter)
     {
