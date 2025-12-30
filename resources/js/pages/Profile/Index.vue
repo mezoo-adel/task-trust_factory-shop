@@ -258,7 +258,7 @@ const deleteAddress = (addressId: number) => {
                                     >
                                         <Checkbox
                                             :id="`pref-${pref.id}`"
-                                            v-model:checked="
+                                            v-model="
                                                 notificationForm.preferences[
                                                     pref.id.toString()
                                                 ]
@@ -287,7 +287,7 @@ const deleteAddress = (addressId: number) => {
                                     >
                                         <Checkbox
                                             :id="`pref-${channel}`"
-                                            v-model:checked="
+                                            v-model="
                                                 notificationForm.preferences[
                                                     channel
                                                 ]

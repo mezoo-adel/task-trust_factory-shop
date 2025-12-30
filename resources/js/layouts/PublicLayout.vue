@@ -1,18 +1,35 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Toaster } from '@/components/ui/toast';
-import { Link, usePage } from '@inertiajs/vue3';
-import { ShoppingCart, User } from 'lucide-vue-next';
+import { Link, router, usePage } from '@inertiajs/vue3';
+import { LogOut, ShoppingCart, User } from 'lucide-vue-next';
 import { computed } from 'vue';
 
 const page = usePage();
 const auth = computed(() => page.props.auth);
 const cartItemCount = computed(() => page.props.cartItemCount || 0);
-const systemInfo = computed(() => page.props.systemInfo || {
-    name: 'Trust Factory',
-    description: 'Premium cosmetics for your natural beauty.',
-    icon_url: null,
-});
+const systemInfo = computed(
+    () =>
+        page.props.systemInfo || {
+            name: 'Trust Factory',
+            description: 'Premium cosmetics for your natural beauty.',
+            icon_url: null,
+        },
+);
+
+const handleLogout = () => {
+    router.post('/logout');
+};
+
+const isAdmin = computed(() => auth.value.user && auth.value.user?.is_admin);
 </script>
 
 <template>
@@ -70,15 +87,50 @@ const systemInfo = computed(() => page.props.systemInfo || {
                         </Link>
 
                         <!-- User Menu -->
-                        <div v-if="auth.user">
+                        <div v-if="auth.user" class="flex items-center gap-2">
                             <Link href="/orders">
                                 <Button variant="ghost"> My Orders </Button>
                             </Link>
-                            <Link href="/profile">
-                                <Button variant="ghost" size="icon">
-                                    <User class="h-5 w-5" />
-                                </Button>
-                            </Link>
+
+                            <DropdownMenu>
+                                <DropdownMenuTrigger as-child>
+                                    <Button variant="ghost" size="icon">
+                                        <User class="h-5 w-5" />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" class="w-56">
+                                    <DropdownMenuLabel>
+                                        <div class="flex flex-col space-y-1">
+                                            <p class="text-sm font-medium">
+                                                {{ auth.user.name }}
+                                            </p>
+                                            <p
+                                                class="text-xs text-muted-foreground"
+                                            >
+                                                {{ auth.user.email }}
+                                            </p>
+                                        </div>
+                                    </DropdownMenuLabel>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem as-child>
+                                        <Link
+                                            :href="isAdmin? '/admin/dashboard' : '/profile'"
+                                            class="cursor-pointer"
+                                        >
+                                            <User class="mr-2 h-4 w-4" />
+                                            <span>{{ isAdmin? 'Dashboard' : 'Profile' }}</span>
+                                        </Link>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem
+                                        @click="handleLogout"
+                                        class="cursor-pointer text-red-600"
+                                    >
+                                        <LogOut class="mr-2 h-4 w-4" />
+                                        <span>Log out</span>
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
                         </div>
                         <div v-else class="flex items-center gap-2">
                             <Link href="/login">
@@ -190,8 +242,8 @@ const systemInfo = computed(() => page.props.systemInfo || {
                     class="mt-8 border-t border-purple-200 pt-8 text-center text-sm"
                 >
                     <p class="text-gray-700">
-                        &copy; {{ new Date().getFullYear() }} {{ systemInfo.name }}. All
-                        rights reserved.
+                        &copy; {{ new Date().getFullYear() }}
+                        {{ systemInfo.name }}. All rights reserved.
                     </p>
                 </div>
             </div>
