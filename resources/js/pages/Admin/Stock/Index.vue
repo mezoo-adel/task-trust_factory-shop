@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import Pagination from '@/components/Pagination.vue';
+import AdjustStockModal from '@/components/Admin/AdjustStockModal.vue';
 import adminRoutes from '@/routes/admin';
 import { TrendingUp, Search, Package, ArrowLeft } from 'lucide-vue-next';
 import type { Product, PaginatedData } from '@/types/models';
@@ -21,6 +22,8 @@ interface Props {
 const props = defineProps<Props>();
 
 const filters = ref({ ...props.filters });
+const isModalOpen = ref(false);
+const selectedProduct = ref<Product | null>(null);
 
 const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -34,6 +37,11 @@ const applyFilters = () => {
         preserveState: true,
         preserveScroll: true,
     });
+};
+
+const openAdjustModal = (product: Product) => {
+    selectedProduct.value = product;
+    isModalOpen.value = true;
 };
 </script>
 
@@ -76,9 +84,9 @@ const applyFilters = () => {
             </Card>
 
             <!-- Products Grid -->
-            <div v-if="products.data.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <div v-if="products.data.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <Card v-for="product in products.data" :key="product.id" class="hover:shadow-lg transition-shadow">
-                    <CardContent class="p-6">
+                    <CardContent>
                         <div class="flex flex-col h-full">
                             <div class="flex-1">
                                 <h3 class="text-lg font-semibold mb-2">{{ product.name }}</h3>
@@ -102,7 +110,7 @@ const applyFilters = () => {
                                     </div>
                                 </div>
                             </div>
-                            <Button variant="outline" class="w-full">
+                            <Button variant="outline" class="w-full mt-auto" @click="openAdjustModal(product)">
                                 Adjust Stock
                             </Button>
                         </div>
@@ -120,6 +128,12 @@ const applyFilters = () => {
             <!-- Pagination -->
             <Pagination :data="products" item-name="products" />
         </div>
+
+        <!-- Adjust Stock Modal -->
+        <AdjustStockModal
+            v-model:open="isModalOpen"
+            :product="selectedProduct"
+        />
     </div>
 </template>
 

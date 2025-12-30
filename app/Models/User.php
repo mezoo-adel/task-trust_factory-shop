@@ -85,4 +85,9 @@ class User extends Authenticatable
             ->withPivot('is_subscribed')
             ->withTimestamps();
     }
+
+    public function admin()
+    {
+        return $this->where('is_admin', true);
+    }
 }

@@ -14,7 +14,7 @@ class ProductController extends Controller
     {
         $query = Product::filter($filter)
             ->with('uploads')
-            ->where('is_active', true);
+            ->active();
 
         switch ($request->input('sort', 'name')) {
             case 'price_asc':
@@ -41,9 +41,9 @@ class ProductController extends Controller
         ]);
     }
 
-    public function show(Product $product): Response
+    public function show(string $slug): Response
     {
-        $product->load('uploads');
+        $product = Product::with('uploads')->where('slug', $slug)->firstOrFail();
 
         return Inertia::render('Products/Show', [
             'product' => $product,

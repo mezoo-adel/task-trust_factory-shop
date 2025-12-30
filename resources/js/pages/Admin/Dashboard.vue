@@ -8,8 +8,14 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-import adminRoutes from '@/routes/admin';
 import { logout } from '@/routes';
+import adminRoutes from '@/routes/admin';
+import type {
+    AdminDashboardStats,
+    LowStockProduct,
+    OrdersByStatus,
+    RecentOrder,
+} from '@/types/models';
 import { Head, Link } from '@inertiajs/vue3';
 import {
     AlertTriangle,
@@ -19,7 +25,6 @@ import {
     TrendingUp,
     Users,
 } from 'lucide-vue-next';
-import type { AdminDashboardStats, OrdersByStatus, RecentOrder, LowStockProduct } from '@/types/models';
 
 interface Props {
     stats: AdminDashboardStats;
@@ -65,11 +70,7 @@ const getStatusColor = (status: string) => {
                             <Link href="/">View Store</Link>
                         </Button>
                         <Button as-child variant="outline">
-                            <Link
-                                :href="logout()"
-                                method="post"
-                                as="button"
-                            >
+                            <Link :href="logout()" method="post" as="button">
                                 Logout
                             </Link>
                         </Button>
@@ -81,11 +82,7 @@ const getStatusColor = (status: string) => {
         <div class="container mx-auto px-4 py-8">
             <!-- Quick Actions -->
             <div class="mb-8 grid grid-cols-1 gap-4 md:grid-cols-4">
-                <Button
-                    as-child
-                    size="lg"
-                    class="h-auto py-4"
-                >
+                <Button as-child size="lg" class="h-auto py-4">
                     <Link
                         :href="adminRoutes.products.index.url()"
                         class="flex flex-col items-center gap-2"
@@ -94,24 +91,7 @@ const getStatusColor = (status: string) => {
                         <span>Manage Products</span>
                     </Link>
                 </Button>
-                <Button
-                    as-child
-                    size="lg"
-                    class="h-auto py-4"
-                >
-                    <Link
-                        :href="adminRoutes.orders.index.url()"
-                        class="flex flex-col items-center gap-2"
-                    >
-                        <ShoppingCart class="h-6 w-6" />
-                        <span>View Orders</span>
-                    </Link>
-                </Button>
-                <Button
-                    as-child
-                    size="lg"
-                    class="h-auto py-4"
-                >
+                <Button as-child size="lg" class="h-auto py-4">
                     <Link
                         :href="adminRoutes.stock.index.url()"
                         class="flex flex-col items-center gap-2"
@@ -120,11 +100,16 @@ const getStatusColor = (status: string) => {
                         <span>Stock Management</span>
                     </Link>
                 </Button>
-                <Button
-                    as-child
-                    size="lg"
-                    class="h-auto py-4"
-                >
+                <Button as-child size="lg" class="h-auto py-4">
+                    <Link
+                        :href="adminRoutes.orders.index.url()"
+                        class="flex flex-col items-center gap-2"
+                    >
+                        <ShoppingCart class="h-6 w-6" />
+                        <span>View Orders</span>
+                    </Link>
+                </Button>
+                <Button as-child size="lg" class="h-auto py-4">
                     <Link
                         :href="adminRoutes.admins.index.url()"
                         class="flex flex-col items-center gap-2"

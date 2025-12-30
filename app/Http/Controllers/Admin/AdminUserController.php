@@ -19,9 +19,9 @@ class AdminUserController extends Controller
     public function index(Request $request, UserFilter $filter)
     {
         $admins = User::filter($filter)
-            ->where('is_admin', true)
+            ->admin()
             ->orderBy('created_at', 'desc')
-            ->paginate($this->perPage);
+            ->get();
 
         return Inertia::render('Admin/Admins/Index', [
             'admins' => $admins,

@@ -21,9 +21,9 @@ class AdjustStockRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'operation' => ['required', Rule::in(['add', 'remove'])],
-            'quantity' => 'required|integer|min:1',
-            'reason' => 'required|string|max:255',
+            'stock_quantity' => 'required|integer|min:1',
+            'stock_threshold' => 'nullable|integer|min:1',
+            'reason' => 'nullable|string|max:255',
         ];
     }
 }

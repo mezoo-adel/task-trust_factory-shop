@@ -23,8 +23,6 @@ class StoreProductRequest extends FormRequest
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
-            'stock_quantity' => 'required|integer|min:0',
-            'stock_threshold' => 'required|integer|min:1|max:10',
             'is_active' => 'boolean',
             'upload_ids' => 'nullable|array',
             'upload_ids.*' => 'integer|exists:uploads,id',

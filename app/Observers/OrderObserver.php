@@ -68,7 +68,7 @@ class OrderObserver
         );
 
         // Notify all admins
-        $admins = User::where('is_admin', true)->get();
+        $admins = User::admin()->get();
         $this->notificationService->sendBulkEmail(
             $admins,
             'New Order Received - #' . $order->uuid,

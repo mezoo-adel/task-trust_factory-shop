@@ -23,11 +23,6 @@ class Product extends Model
 
     protected $appends = ['image_urls'];
 
-    public function getRouteKeyName()
-    {
-        return 'slug';
-    }
-
     protected function casts(): array
     {
         return [
@@ -68,7 +63,6 @@ class Product extends Model
         return $this->stock_quantity > 0;
     }
 
-
     public function getImageUrlsAttribute(): array
     {
         return $this->uploads->map(function ($upload) {
@@ -76,4 +70,8 @@ class Product extends Model
         })->toArray();
     }
 
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
 }

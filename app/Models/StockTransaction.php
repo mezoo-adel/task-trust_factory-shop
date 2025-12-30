@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\StockOperationEnum;
 use App\Traits\Filterable;
 use Illuminate\Database\Eloquent\Model;
 
@@ -25,6 +26,7 @@ class StockTransaction extends Model
     protected function casts(): array
     {
         return [
+            'operation' => StockOperationEnum::class,
             'quantity' => 'integer',
             'previous_stock' => 'integer',
             'new_stock' => 'integer',

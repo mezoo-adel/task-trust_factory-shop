@@ -30,14 +30,13 @@ class AdminUserService
         ]);
 
         // Send login credentials email immediately
-        $loginUrl = route('admin.login');
+        $loginUrl = route('login');
         $this->notificationService->sendEmail(
             $admin,
             'Admin Account Created - ' . config('app.name'),
             "Your admin account has been created successfully!\n\n" .
-            "Login URL: {$loginUrl}\n" .
             "Email: {$admin->email}\n" .
-            "Temporary Password: {$password}\n\n" .
+            "Password: {$password}\n\n" .
             "Please login and change your password immediately for security.",
             'Login to Admin Panel',
             $loginUrl

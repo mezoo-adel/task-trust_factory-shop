@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import UploadComponent from '@/components/UploadComponent.vue';
+import StockInputs from '@/components/Admin/StockInputs.vue';
 import type { Upload } from '@/types/models';
 import { Save, X } from 'lucide-vue-next';
 
@@ -41,7 +42,9 @@ const name = defineModel<string>('name', { required: true });
 const description = defineModel<string>('description', { required: true });
 const price = defineModel<string>('price', { required: true });
 const stockQuantity = defineModel<string>('stockQuantity', { required: true });
-const stockThreshold = defineModel<string>('stockThreshold', { required: true });
+const stockThreshold = defineModel<string>('stockThreshold', {
+    required: true,
+});
 const isActive = defineModel<boolean>('isActive', { required: true });
 const uploadIds = defineModel<number[]>('uploadIds', { default: () => [] });
 
@@ -88,7 +91,9 @@ const handleUploadsChange = (uploads: Upload[]) => {
                                 v-model="description"
                                 placeholder="Enter product description"
                                 rows="6"
-                                :class="{ 'border-red-500': errors?.description }"
+                                :class="{
+                                    'border-red-500': errors?.description,
+                                }"
                             />
                             <p class="text-xs text-gray-500">
                                 Provide a detailed description of the product
@@ -133,51 +138,12 @@ const handleUploadsChange = (uploads: Upload[]) => {
                             </p>
                         </div>
 
-                        <!-- Stock Quantity -->
-                        <div class="space-y-2">
-                            <Label for="stock_quantity">Stock Quantity *</Label>
-                            <Input
-                                id="stock_quantity"
-                                v-model="stockQuantity"
-                                type="number"
-                                min="0"
-                                placeholder="0"
-                                :class="{ 'border-red-500': errors?.stock_quantity }"
-                                required
-                            />
-                            <p
-                                v-if="errors?.stock_quantity"
-                                class="text-sm text-red-600"
-                            >
-                                {{ errors.stock_quantity }}
-                            </p>
-                        </div>
-
-                        <!-- Stock Threshold -->
-                        <div class="space-y-2">
-                            <Label for="stock_threshold"
-                                >Low Stock Threshold *</Label
-                            >
-                            <Input
-                                id="stock_threshold"
-                                v-model="stockThreshold"
-                                type="number"
-                                min="1"
-                                placeholder="3"
-                                :class="{ 'border-red-500': errors?.stock_threshold }"
-                                required
-                            />
-                            <p class="text-xs text-gray-500">
-                                Alert when stock falls below this number (ex: 3)
-                            </p>
-                            <p
-                                v-if="errors?.stock_threshold"
-                                class="text-sm text-red-600"
-                            >
-                                {{ errors.stock_threshold }}
-                            </p>
-                        </div>
-
+                        <!-- Stock Quantity & Threshold -->
+                        <!-- <StockInputs
+                            v-model:stock-quantity="stockQuantity"
+                            v-model:stock-threshold="stockThreshold"
+                            :errors="errors"
+                        /> -->
                         <!-- Active Status -->
                         <div
                             class="flex items-center justify-between space-x-2 pt-2"
@@ -188,10 +154,7 @@ const handleUploadsChange = (uploads: Upload[]) => {
                                     Make this product visible to customers
                                 </p>
                             </div>
-                            <Switch
-                                id="is_active"
-                                v-model="isActive"
-                            />
+                            <Switch id="is_active" v-model="isActive" />
                         </div>
                         <p
                             v-if="errors?.is_active"

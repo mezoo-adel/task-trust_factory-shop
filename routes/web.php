@@ -13,7 +13,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::controller(ProductController::class)->prefix('products')->name('products.')->group(function () {
     Route::get('/', 'index')->name('index');
-    Route::get('/{product}', 'show')->name('show');
+    Route::get('/{slug}', 'show')->name('show');
 });
 
 Route::controller(CartController::class)->prefix('cart')->name('cart.')->group(function () {

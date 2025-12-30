@@ -9,6 +9,7 @@ use App\Http\Requests\Admin\AdjustStockRequest;
 use App\Models\Product;
 use App\Models\StockTransaction;
 use App\Services\StockService;
+use DB;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -35,25 +36,22 @@ class StockController extends Controller
         try {
             $validated = $request->validated();
 
-            if ($validated['operation'] === 'add') {
-                $this->stockService->addStock(
-                    $product,
-                    $validated['quantity'],
-                    $validated['reason'],
-                    auth()->id()
-                );
-            } else {
-                $this->stockService->removeStock(
-                    $product,
-                    $validated['quantity'],
-                    $validated['reason'],
-                    auth()->id()
-                );
-            }
+            $this->stockService->updateStock(
+                product: $product,
+                newStockQuantity: $validated['stock_quantity'],
+                newStockThreshold: $validated['stock_threshold'] ?? null,
+                reason: $validated['reason'] ?? null,
+            );
 
-            return back()->with('success', 'Stock adjusted successfully.');
+            return response()->json([
+                'success' => true,
+                'message' => 'Stock adjusted successfully.',
+            ]);
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => $e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 422);
         }
     }
 

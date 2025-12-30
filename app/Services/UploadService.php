@@ -104,6 +104,6 @@ class UploadService
      */
     public function getUrl(Upload $upload): string
     {
-        return Storage::disk('public')->url($upload->file_path);
+       return asset('storage/' . $upload->file_path);
     }
 }

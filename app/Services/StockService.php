@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Enums\StockOperationEnum;
+use App\Jobs\StockNotificationJob;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
@@ -48,7 +50,7 @@ class StockService
             $transaction = StockTransaction::create([
                 'product_id' => $product->id,
                 'order_id' => $orderId,
-                'operation' => 'remove',
+                'operation' => StockOperationEnum::REMOVE,
                 'quantity' => $quantity,
                 'previous_stock' => $previousStock,
                 'new_stock' => $newStock,
@@ -88,7 +90,7 @@ class StockService
             return StockTransaction::create([
                 'product_id' => $product->id,
                 'order_id' => $orderId,
-                'operation' => 'add',
+                'operation' => StockOperationEnum::ADD,
                 'quantity' => $quantity,
                 'previous_stock' => $previousStock,
                 'new_stock' => $newStock,
@@ -147,7 +149,57 @@ class StockService
     {
         return $product->stock_quantity >= $quantity;
     }
+
+    /**
+     * Update product stock and create transaction automatically
+     * Determines operation (add/remove) based on new vs current stock
+     */
+    public function updateStock(
+        Product $product,
+        int $newStockQuantity,
+        ?int $newStockThreshold = null,
+        ?string $reason = null,
+    ): ?StockTransaction {
+        return DB::transaction(function () use ($product, $newStockQuantity, $newStockThreshold, $reason) {
+            $previousStock = $product->stock_quantity;
+            $quantityDifference = abs($newStockQuantity - $previousStock);
+
+            // Determine operation based on stock change
+            if ($newStockQuantity > $previousStock) {
+                $operation = StockOperationEnum::ADD;
+                $defaultReason = 'Stock increased';
+            } elseif ($newStockQuantity < $previousStock) {
+                $operation = StockOperationEnum::REMOVE;
+                $defaultReason = 'Stock decreased';
+            } else {
+                // No quantity change, skip transaction creation
+                return null;
+            }
+
+            // Update product stock and threshold
+            $updateData = ['stock_quantity' => $newStockQuantity];
+            if ($newStockThreshold !== null) {
+                $updateData['stock_threshold'] = $newStockThreshold;
+            }
+            $product->update($updateData);
+
+            // Create stock transaction
+            $transaction = StockTransaction::create([
+                'product_id' => $product->id,
+                'operation' => $operation,
+                'quantity' => $quantityDifference,
+                'previous_stock' => $previousStock,
+                'new_stock' => $newStockQuantity,
+                'reason' => $reason ?? $defaultReason,
+                'performed_by' => auth()->id(),
+            ]);
+
+            // Check for low stock
+            if ($newStockQuantity <= $product->stock_threshold) {
+                dispatch(new StockNotificationJob());
+            }
+
+            return $transaction;
+        });
+    }
 }
-
-
-
