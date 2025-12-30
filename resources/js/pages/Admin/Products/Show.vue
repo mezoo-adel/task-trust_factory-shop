@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AdminLayout from '@/layouts/AdminLayout.vue';
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -108,7 +109,7 @@ const getImageUrl = (filePath: string) => {
 <template>
     <Head :title="`${product.name} - Admin`" />
 
-    <div class="min-h-screen bg-gray-50">
+    <AdminLayout>
         <div class="border-b bg-white">
             <div class="container mx-auto px-4 py-4">
                 <div class="flex items-center justify-between">
@@ -337,6 +338,6 @@ const getImageUrl = (filePath: string) => {
                 </div>
             </div>
         </div>
-    </div>
+    </AdminLayout>
 </template>
 

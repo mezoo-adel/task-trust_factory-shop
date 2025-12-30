@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AdminLayout from '@/layouts/AdminLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { Button } from '@/components/ui/button';
@@ -46,6 +47,7 @@ const openAdjustModal = (product: Product) => {
 </script>
 
 <template>
+    <AdminLayout>
     <Head title="Stock Management - Admin" />
 
     <div class="min-h-screen bg-gray-50">
@@ -135,5 +137,6 @@ const openAdjustModal = (product: Product) => {
             :product="selectedProduct"
         />
     </div>
+    </AdminLayout>
 </template>
 

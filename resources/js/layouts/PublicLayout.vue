@@ -8,6 +8,11 @@ import { computed } from 'vue';
 const page = usePage();
 const auth = computed(() => page.props.auth);
 const cartItemCount = computed(() => page.props.cartItemCount || 0);
+const systemInfo = computed(() => page.props.systemInfo || {
+    name: 'Trust Factory',
+    description: 'Premium cosmetics for your natural beauty.',
+    icon_url: null,
+});
 </script>
 
 <template>
@@ -18,12 +23,19 @@ const cartItemCount = computed(() => page.props.cartItemCount || 0);
                 <div class="flex h-16 items-center justify-between">
                     <!-- Logo -->
                     <Link href="/" class="flex items-center gap-2">
+                        <img
+                            v-if="systemInfo.icon_url"
+                            :src="systemInfo.icon_url"
+                            :alt="systemInfo.name"
+                            class="h-8 w-8 rounded-lg object-cover"
+                        />
                         <div
+                            v-else
                             class="h-8 w-8 rounded-lg bg-gradient-to-br from-purple-600 to-pink-600"
                         />
-                        <span class="text-xl font-bold text-gray-900"
-                            >Trust Factory</span
-                        >
+                        <span class="text-xl font-bold text-gray-900">{{
+                            systemInfo.name
+                        }}</span>
                     </Link>
 
                     <!-- Desktop Navigation -->
@@ -93,9 +105,9 @@ const cartItemCount = computed(() => page.props.cartItemCount || 0);
             <div class="container mx-auto px-4">
                 <div class="grid grid-cols-1 gap-8 md:grid-cols-4">
                     <div>
-                        <h3 class="mb-4 font-bold">Trust Factory Shop</h3>
+                        <h3 class="mb-4 font-bold">{{ systemInfo.name }}</h3>
                         <p class="text-sm text-gray-700">
-                            Premium cosmetics for your natural beauty.
+                            {{ systemInfo.description }}
                         </p>
                     </div>
                     <div>
@@ -178,8 +190,8 @@ const cartItemCount = computed(() => page.props.cartItemCount || 0);
                     class="mt-8 border-t border-purple-200 pt-8 text-center text-sm"
                 >
                     <p class="text-gray-700">
-                        &copy; {{ new Date().getFullYear() }} Trust Factory
-                        Shop. All rights reserved.
+                        &copy; {{ new Date().getFullYear() }} {{ systemInfo.name }}. All
+                        rights reserved.
                     </p>
                 </div>
             </div>

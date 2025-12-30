@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AdminLayout from '@/layouts/AdminLayout.vue';
 import AddAdminModal from '@/components/Admin/AddAdminModal.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -27,6 +28,7 @@ const formatDate = (date: string) => {
 </script>
 
 <template>
+    <AdminLayout>
     <Head title="Admin Users - Admin" />
 
     <div class="min-h-screen bg-gray-50">
@@ -113,4 +115,5 @@ const formatDate = (date: string) => {
         <!-- Add Admin Modal -->
         <AddAdminModal v-model:open="isModalOpen" />
     </div>
+    </AdminLayout>
 </template>

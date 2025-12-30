@@ -3,6 +3,7 @@ use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\StockController;
 
 // Admin Routes
@@ -34,6 +35,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::controller(AdminUserController::class)->prefix('admins')->name('admins.')->group(function () {
             Route::get('/', 'index')->name('index');
             Route::post('/', 'store')->name('store');
+        });
+
+        // Settings Management
+        Route::controller(SettingController::class)->prefix('settings')->name('settings.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::post('/', 'update')->name('update');
         });
     });
 });

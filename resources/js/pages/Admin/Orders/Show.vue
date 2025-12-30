@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AdminLayout from '@/layouts/AdminLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -84,6 +85,7 @@ const updateNotes = () => {
 </script>
 
 <template>
+    <AdminLayout>
     <Head :title="`Order #${order.uuid.substring(0, 8)} - Admin`" />
 
     <div class="min-h-screen bg-gray-50">
@@ -248,5 +250,6 @@ const updateNotes = () => {
             </div>
         </div>
     </div>
+    </AdminLayout>
 </template>
 

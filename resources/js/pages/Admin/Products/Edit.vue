@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AdminLayout from '@/layouts/AdminLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { Button } from '@/components/ui/button';
 import ProductForm from '@/components/Admin/ProductForm.vue';
@@ -50,7 +51,7 @@ const handleCancel = () => {
 <template>
     <Head :title="`Edit ${product.name} - Admin`" />
 
-    <div class="min-h-screen bg-gray-50">
+    <AdminLayout>
         <div class="border-b bg-white">
             <div class="container mx-auto px-4 py-4">
                 <div class="flex items-center justify-between">
@@ -87,6 +88,6 @@ const handleCancel = () => {
                 />
             </div>
         </div>
-    </div>
+    </AdminLayout>
 </template>
 

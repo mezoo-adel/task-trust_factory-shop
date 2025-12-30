@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AdminLayout from '@/layouts/AdminLayout.vue';
 import Pagination from '@/components/Pagination.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -59,7 +60,7 @@ const clearFilters = () => {
 <template>
     <Head title="Products - Admin" />
 
-    <div class="min-h-screen bg-gray-50">
+    <AdminLayout>
         <div class="border-b bg-white">
             <div class="container mx-auto px-4 py-4">
                 <div class="flex items-center justify-between">
@@ -218,5 +219,5 @@ const clearFilters = () => {
             <!-- Pagination -->
             <Pagination :data="products" item-name="products" />
         </div>
-    </div>
+    </AdminLayout>
 </template>

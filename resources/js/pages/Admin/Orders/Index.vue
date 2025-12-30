@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AdminLayout from '@/layouts/AdminLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { Button } from '@/components/ui/button';
@@ -60,6 +61,7 @@ const applyFilters = () => {
 </script>
 
 <template>
+    <AdminLayout>
     <Head title="Orders - Admin" />
 
     <div class="min-h-screen bg-gray-50">
@@ -145,5 +147,6 @@ const applyFilters = () => {
             <Pagination :data="orders" item-name="orders" />
         </div>
     </div>
+    </AdminLayout>
 </template>
 

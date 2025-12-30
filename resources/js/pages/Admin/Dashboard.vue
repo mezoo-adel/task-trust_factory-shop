@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AdminLayout from '@/layouts/AdminLayout.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -8,7 +9,6 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-import { logout } from '@/routes';
 import adminRoutes from '@/routes/admin';
 import type {
     AdminDashboardStats,
@@ -57,29 +57,8 @@ const getStatusColor = (status: string) => {
 <template>
     <Head title="Admin Dashboard" />
 
-    <div class="min-h-screen bg-gray-50">
-        <!-- Header -->
-        <div class="border-b bg-white">
-            <div class="container mx-auto px-4 py-4">
-                <div class="flex items-center justify-between">
-                    <h1 class="text-2xl font-bold text-gray-900">
-                        Admin Dashboard
-                    </h1>
-                    <div class="flex gap-2">
-                        <Button as-child variant="outline">
-                            <Link href="/">View Store</Link>
-                        </Button>
-                        <Button as-child variant="outline">
-                            <Link :href="logout()" method="post" as="button">
-                                Logout
-                            </Link>
-                        </Button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="container mx-auto px-4 py-8">
+    <AdminLayout>
+        <div class="space-y-6">
             <!-- Quick Actions -->
             <div class="mb-8 grid grid-cols-1 gap-4 md:grid-cols-4">
                 <Button as-child size="lg" class="h-auto py-4">
@@ -328,5 +307,5 @@ const getStatusColor = (status: string) => {
                 </Card>
             </div>
         </div>
-    </div>
+    </AdminLayout>
 </template>
