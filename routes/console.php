@@ -1,5 +1,6 @@
 <?php
 
+use App\Jobs\ReportNotificationJob;
 use App\Jobs\StockNotificationJob;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -11,3 +12,5 @@ Artisan::command('inspire', function () {
 
 // Schedule low stock notifications
 Schedule::job(new StockNotificationJob)->everyFifteenMinutes();
+// Schedule daily sales report
+Schedule::job(new ReportNotificationJob)->dailyAt('22:00');
