@@ -1,5 +1,6 @@
-import type { Upload, UploadProgress } from '@/types/models';
 import { ref } from 'vue';
+import type { Upload, UploadProgress } from '@/types/models';
+import useCsrf from '@/composables/useCsrf';
 
 export function useUpload() {
     const uploading = ref(false);
@@ -36,16 +37,11 @@ export function useUpload() {
             if (uploadableType)
                 formData.append('uploadable_type', uploadableType);
 
-            const csrfToken =
-                document
-                    .querySelector('meta[name="csrf-token"]')
-                    ?.getAttribute('content') || '';
-
             const response = await fetch('/uploads', {
                 method: 'POST',
                 body: formData,
                 headers: {
-                    'X-CSRF-TOKEN': csrfToken,
+                    'X-CSRF-TOKEN': useCsrf(),
                     Accept: 'application/json',
                     'X-Requested-With': 'XMLHttpRequest',
                 },
@@ -113,15 +109,11 @@ export function useUpload() {
      * Delete an upload
      */
     const deleteUpload = async (uploadId: number): Promise<boolean> => {
-        const csrfToken =
-            document
-                .querySelector('meta[name="csrf-token"]')
-                ?.getAttribute('content') || '';
         try {
             const response = await fetch(`/uploads/${uploadId}`, {
                 method: 'DELETE',
                 headers: {
-                    'X-CSRF-TOKEN': csrfToken,
+                    'X-CSRF-TOKEN': useCsrf(),
                     Accept: 'application/json',
                     'Content-Type': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest',

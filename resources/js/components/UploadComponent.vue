@@ -1,12 +1,12 @@
 <script setup lang="ts">
+import ConfirmDialog from '@/components/ConfirmDialog.vue';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { useUpload } from '@/composables/useUpload';
 import { useToast } from '@/components/ui/toast/use-toast';
-import ConfirmDialog from '@/components/ConfirmDialog.vue';
+import { useUpload } from '@/composables/useUpload';
+import type { Upload } from '@/types/models';
 import { Trash2, Upload as UploadIcon } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
-import type { Upload } from '@/types/models';
 
 interface Props {
     modelValue: Upload[];
@@ -52,7 +52,7 @@ const formatFileSize = (bytes: number): string => {
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
 };
 
 const validateFile = (file: File): string | null => {
@@ -63,9 +63,9 @@ const validateFile = (file: File): string | null => {
     }
 
     // Check file type
-    const acceptedTypes = props.accept.split(',').map(t => t.trim());
+    const acceptedTypes = props.accept.split(',').map((t) => t.trim());
     const fileType = file.type;
-    const isValidType = acceptedTypes.some(type => {
+    const isValidType = acceptedTypes.some((type) => {
         if (type.endsWith('/*')) {
             return fileType.startsWith(type.replace('/*', ''));
         }
@@ -109,7 +109,7 @@ const handleFileSelect = async (files: FileList | null) => {
             file,
             props.folder,
             props.uploadableId,
-            props.uploadableType
+            props.uploadableType,
         );
 
         if (upload) {
@@ -148,7 +148,9 @@ const confirmDelete = async () => {
 
     const success = await deleteUpload(uploadToDelete.value.id);
     if (success) {
-        localUploads.value = localUploads.value.filter(u => u.id !== uploadToDelete.value!.id);
+        localUploads.value = localUploads.value.filter(
+            (u) => u.id !== uploadToDelete.value!.id,
+        );
         emit('update:modelValue', localUploads.value);
         toast({
             title: 'File Deleted',
@@ -172,10 +174,10 @@ const openFileDialog = () => {
 <template>
     <div class="space-y-4">
         <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
+            <label class="mb-2 block text-sm font-medium text-gray-700">
                 {{ label }}
             </label>
-            <p v-if="description" class="text-sm text-gray-500 mb-3">
+            <p v-if="description" class="mb-3 text-sm text-gray-500">
                 {{ description }}
             </p>
         </div>
@@ -188,15 +190,19 @@ const openFileDialog = () => {
             @dragleave="handleDragLeave"
             @click="openFileDialog"
             :class="[
-                'border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors',
+                'cursor-pointer rounded-lg border-2 border-dashed p-8 text-center transition-colors',
                 isDragging
                     ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-300 hover:border-gray-400 bg-gray-50',
+                    : 'border-gray-300 bg-gray-50 hover:border-gray-400',
             ]"
         >
             <UploadIcon class="mx-auto h-12 w-12 text-gray-400" />
             <p class="mt-2 text-sm text-gray-600">
-                {{ isDragging ? 'Drop files here' : 'Drag and drop files here, or click to select' }}
+                {{
+                    isDragging
+                        ? 'Drop files here'
+                        : 'Drag and drop files here, or click to select'
+                }}
             </p>
             <p class="mt-1 text-xs text-gray-500">
                 Max {{ maxFiles }} files, {{ maxSize }}MB each
@@ -206,48 +212,65 @@ const openFileDialog = () => {
                 type="file"
                 :accept="accept"
                 :multiple="multiple"
-                @change="(e) => handleFileSelect((e.target as HTMLInputElement).files)"
+                @change="
+                    (e) =>
+                        handleFileSelect((e.target as HTMLInputElement).files)
+                "
                 class="hidden"
             />
         </div>
 
         <!-- Error Message -->
-        <div v-if="error" class="p-3 bg-red-50 border border-red-200 rounded-lg">
+        <div
+            v-if="error"
+            class="rounded-lg border border-red-200 bg-red-50 p-3"
+        >
             <p class="text-sm text-red-600">{{ error }}</p>
         </div>
 
         <!-- Uploading Indicator -->
-        <div v-if="uploading" class="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+        <div
+            v-if="uploading"
+            class="rounded-lg border border-blue-200 bg-blue-50 p-3"
+        >
             <p class="text-sm text-blue-600">Uploading...</p>
         </div>
 
         <!-- Uploaded Files Grid -->
-        <div v-if="localUploads.length > 0" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div
+            v-if="localUploads.length > 0"
+            class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4"
+        >
             <Card
                 v-for="upload in localUploads"
                 :key="upload.id"
-                class="relative group overflow-hidden"
+                class="group relative overflow-hidden"
             >
-                <div class="aspect-square relative">
+                <div class="relative aspect-square">
                     <img
                         :src="upload.url"
                         :alt="upload.file_name"
-                        class="w-full h-full object-cover"
+                        class="h-full w-full object-cover"
                     />
-                    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all flex items-center justify-center">
+                    <div
+                        class="bg-opacity-0 group-hover:bg-opacity-50 absolute inset-0 flex items-center justify-center bg-transparent transition-all"
+                    >
                         <Button
                             @click="handleDelete(upload)"
                             type="button"
                             variant="destructive"
                             size="icon"
-                            class="opacity-0 group-hover:opacity-100 transition-opacity"
+                            class="opacity-0 transition-opacity group-hover:opacity-100"
                         >
                             <Trash2 class="h-4 w-4" />
                         </Button>
                     </div>
                 </div>
-                <div class="p-2 bg-white">
-                    <p class="text-xs text-gray-600 truncate" :title="upload.file_name">
+                <div class="bg-white p-2">
+                    <p
+                        class="truncate text-xs text-gray-600"
+                        :title="upload.file_name"
+                    >
                         {{ upload.file_name }}
                     </p>
                     <p class="text-xs text-gray-400">
@@ -258,7 +281,10 @@ const openFileDialog = () => {
         </div>
 
         <!-- No Files Message -->
-        <div v-if="localUploads.length === 0 && !canUploadMore" class="text-center py-8 text-gray-500">
+        <div
+            v-if="localUploads.length === 0 && !canUploadMore"
+            class="py-8 text-center text-gray-500"
+        >
             <p>No files uploaded yet</p>
         </div>
 
