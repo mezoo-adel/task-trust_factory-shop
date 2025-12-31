@@ -42,8 +42,8 @@
             display: inline-block;
             padding: 12px 30px;
             margin: 20px 0;
+            color: #ffffff !important;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #ffffff;
             text-decoration: none;
             border-radius: 6px;
             font-weight: 600;
@@ -64,15 +64,15 @@
         </div>
         <div class="content">
             <p>Hello {{ $user->name }},</p>
-            
+
             {!! nl2br(e($content)) !!}
-            
+
             @if($ctaText && $ctaUrl)
                 <div style="text-align: center;">
                     <a href="{{ $ctaUrl }}" class="cta-button">{{ $ctaText }}</a>
                 </div>
             @endif
-            
+
             <p style="margin-top: 30px;">
                 Best regards,<br>
                 The {{ config('app.name') }} Team
