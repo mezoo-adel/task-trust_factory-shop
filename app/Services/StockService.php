@@ -65,7 +65,6 @@ class StockService
                     'current_stock' => $newStock,
                     'threshold' => $product->stock_threshold,
                 ]);
-                // TODO: Dispatch LowStockNotificationJob
             }
 
             return $transaction;
@@ -193,11 +192,6 @@ class StockService
                 'reason' => $reason ?? $defaultReason,
                 'performed_by' => auth()->id(),
             ]);
-
-            // Check for low stock
-            if ($newStockQuantity <= $product->stock_threshold) {
-                dispatch(new StockNotificationJob());
-            }
 
             return $transaction;
         });

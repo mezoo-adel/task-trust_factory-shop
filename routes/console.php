@@ -11,6 +11,6 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 // Schedule low stock notifications
-Schedule::job(new StockNotificationJob)->everyFifteenMinutes();
+Schedule::job(new StockNotificationJob)->everyThirtyMinutes();
 // Schedule daily sales report
 Schedule::job(new ReportNotificationJob)->dailyAt('22:00');
