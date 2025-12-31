@@ -18,6 +18,8 @@ class SettingController extends Controller
     public function index()
     {
         $settings = $this->settingService->getSystemInfo();
+        $settings['mail_from_name'] = $this->settingService->get('mail_from_name');
+        $settings['mail_from_address'] = $this->settingService->get('mail_from_address');
 
         return Inertia::render('Admin/Settings/Index', [
             'settings' => $settings,
@@ -30,6 +32,8 @@ class SettingController extends Controller
             'app_name' => 'required|string|max:255',
             'app_description' => 'nullable|string|max:1000',
             'app_icon' => 'nullable|file|image|max:2048',
+            'mail_from_name' => 'required|string|max:255',
+            'mail_from_address' => 'required|email|max:255',
         ]);
 
         // Update app name
@@ -39,6 +43,12 @@ class SettingController extends Controller
         if (isset($validated['app_description'])) {
             $this->settingService->set('app_description', $validated['app_description']);
         }
+
+        // Update mail from name
+        $this->settingService->set('mail_from_name', $validated['mail_from_name']);
+
+        // Update mail from address
+        $this->settingService->set('mail_from_address', $validated['mail_from_address']);
 
         // Handle icon upload
         if ($request->hasFile('app_icon')) {

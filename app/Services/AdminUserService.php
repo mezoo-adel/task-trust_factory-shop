@@ -9,7 +9,8 @@ use Illuminate\Support\Str;
 class AdminUserService
 {
     public function __construct(
-        private NotificationService $notificationService
+        private NotificationService $notificationService,
+        private SettingService $settingService
     ) {}
 
     /**
@@ -31,9 +32,10 @@ class AdminUserService
 
         // Send login credentials email immediately
         $loginUrl = route('login');
+        $appName = $this->settingService->get('app_name');
         $this->notificationService->sendEmail(
             $admin,
-            'Admin Account Created - ' . config('app.name'),
+            'Admin Account Created - ' . $appName,
             "Your admin account has been created successfully!\n\n" .
             "Email: {$admin->email}\n" .
             "Password: {$password}\n\n" .

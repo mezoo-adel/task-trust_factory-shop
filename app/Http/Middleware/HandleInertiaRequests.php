@@ -12,6 +12,7 @@ class HandleInertiaRequests extends Middleware
     public function __construct(
         protected SettingService $settingService
     ) {}
+
     /**
      * The root template that's loaded on the first page visit.
      *
@@ -41,17 +42,16 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         [$message, $author] = str(Inspiring::quotes()->random())->explode('-');
-
+        $settings = $this->settingService->getSystemInfo();
         return [
             ...parent::share($request),
             'csrf_token' => csrf_token(),
-            'name' => config('app.name'),
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
                 'user' => $request->user(),
             ],
-            'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
-            'systemInfo' => $this->settingService->getSystemInfo(),
+            'sidebarOpen' => !$request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'systemInfo' => $settings,
         ];
     }
 }

@@ -5,11 +5,15 @@ namespace App\Services;
 use App\Models\NotificationChannel;
 use App\Models\User;
 use App\Models\UserNotificationSubscription;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class NotificationService
 {
+    public function __construct(
+        protected SettingService $settingService
+    ) {}
+
     /**
      * Send a unified email notification
      *
@@ -34,15 +38,22 @@ class NotificationService
         }
 
         try {
+            $appName = $this->settingService->get('app_name');
+            $mailFromName = $this->settingService->get('mail_from_name');
+            $mailFromAddress = $this->settingService->get('mail_from_address');
+
             Mail::send('emails.notification', [
                 'user' => $user,
                 'subject' => $subject,
                 'content' => $content,
                 'ctaText' => $ctaText,
                 'ctaUrl' => $ctaUrl,
-            ], function ($message) use ($user, $subject) {
-                $message->to($user->email, $user->name)
-                    ->subject($subject);
+                'app_name' => $appName,
+            ], function ($message) use ($user, $subject, $mailFromName, $mailFromAddress) {
+                $message
+                    ->to($user->email, $user->name)
+                    ->subject($subject)
+                    ->from($mailFromAddress, $mailFromName);
             });
 
             Log::info("Email notification sent to user {$user->id}: {$subject}");
@@ -247,4 +258,3 @@ class NotificationService
         }
     }
 }
-

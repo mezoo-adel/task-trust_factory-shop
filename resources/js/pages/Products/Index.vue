@@ -105,7 +105,7 @@ const clearFilters = () => {
                         v-for="product in products.data"
                         :key="product.id"
                         :product="product"
-                        :showStock="false"
+                        :showStock="true"
                         :button-href="`/products/${product.slug}`"
                     />
                 </div>

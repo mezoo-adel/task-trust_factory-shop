@@ -60,7 +60,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>{{ config('app.name') }}</h1>
+            <h1>{{ $app_name }}</h1>
         </div>
         <div class="content">
             <p>Hello {{ $user->name }},</p>
@@ -75,11 +75,11 @@
 
             <p style="margin-top: 30px;">
                 Best regards,<br>
-                The {{ config('app.name') }} Team
+                The {{ $app_name }} Team
             </p>
         </div>
         <div class="footer">
-            <p>&copy; {{ date('Y') }} {{ config('app.name') }}. All rights reserved.</p>
+            <p>&copy; {{ date('Y') }} {{ $app_name }}. All rights reserved.</p>
             <p>You're receiving this email because you have an account with us.</p>
         </div>
     </div>
