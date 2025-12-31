@@ -21,6 +21,14 @@ class SettingSeeder extends Seeder
                 'key' => 'app_description',
                 'value' => 'Premium cosmetics for your natural beauty, Selected and Picked specially for you. Brought to you by Trust Factory.',
             ],
+            [
+                'key' => 'mail_from_name',
+                'value' => 'Cosmo Shop',
+            ],
+            [
+                'key' => 'mail_from_address',
+                'value' => 'noreply@cosmoshop.com',
+            ],
         ];
 
         foreach ($settings as $setting) {

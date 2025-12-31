@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Models\Product;
 use App\Models\User;
 use App\Services\NotificationService;
+use App\Services\SettingService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -19,7 +20,7 @@ class StockNotificationJob implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(NotificationService $notificationService): void
+    public function handle(NotificationService $notificationService, SettingService $settingService): void
     {
         // Get all products with low stock (stock_quantity <= stock_threshold)
         $lowStockProducts = Product::whereRaw('stock_quantity <= stock_threshold')
@@ -44,7 +45,8 @@ class StockNotificationJob implements ShouldQueue
             return "- {$product->name}: {$product->stock_quantity} units (Threshold: {$product->stock_threshold})";
         })->implode("\n");
 
-        $subject = 'Low Stock Alert - ' . config('app.name');
+        $appName = $settingService->get('app_name');
+        $subject = 'Low Stock Alert - ' . $appName;
         $content = "The following products have low stock levels:\n\n{$productList}\n\n" .
             "Please review and restock these items as soon as possible.";
 

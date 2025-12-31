@@ -94,8 +94,8 @@ class SettingService
     public function getSystemInfo(): array
     {
         return [
-            'name' => $this->get('app_name', config('app.name')),
-            'description' => $this->get('app_description', 'Premium cosmetics for your natural beauty.'),
+            'name' => $this->get('app_name'),
+            'description' => $this->get('app_description'),
             'icon_url' => $this->get('app_icon_url'),
         ];
     }
