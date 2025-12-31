@@ -205,7 +205,7 @@ const systemInfo = computed(() => page.props.systemInfo || {
             </header>
 
             <!-- Page Content -->
-            <main class="flex-1 px-6">
+            <main class="flex-1 pt-4 px-6">
                 <slot />
             </main>
         </div>
