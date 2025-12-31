@@ -114,11 +114,19 @@ const isAdmin = computed(() => auth.value.user && auth.value.user?.is_admin);
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem as-child>
                                         <Link
-                                            :href="isAdmin? '/admin/dashboard' : '/profile'"
+                                            :href="
+                                                isAdmin
+                                                    ? '/admin/dashboard'
+                                                    : '/profile'
+                                            "
                                             class="cursor-pointer"
                                         >
                                             <User class="mr-2 h-4 w-4" />
-                                            <span>{{ isAdmin? 'Dashboard' : 'Profile' }}</span>
+                                            <span>{{
+                                                isAdmin
+                                                    ? 'Dashboard'
+                                                    : 'Profile'
+                                            }}</span>
                                         </Link>
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
@@ -134,7 +142,7 @@ const isAdmin = computed(() => auth.value.user && auth.value.user?.is_admin);
                         </div>
                         <div v-else class="flex items-center gap-2">
                             <Link href="/login">
-                                <Button variant="ghost"> Log in </Button>
+                                <Button> Log in </Button>
                             </Link>
                         </div>
                     </div>
@@ -199,11 +207,9 @@ const isAdmin = computed(() => auth.value.user && auth.value.user?.is_admin);
                             </template>
                             <template v-else>
                                 <li>
-                                    <Link
-                                        href="/login"
-                                        class="text-gray-700 transition-colors hover:text-gray-900"
-                                        >Login</Link
-                                    >
+                                    <Link href="/login">
+                                        <Button> Log in </Button>
+                                    </Link>
                                 </li>
                             </template>
                         </ul>
