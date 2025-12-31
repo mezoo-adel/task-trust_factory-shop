@@ -17,6 +17,8 @@ class Upload extends Model
         'order',
     ];
 
+    protected $appends = ['url'];
+
     protected function casts(): array
     {
         return [
@@ -28,5 +30,10 @@ class Upload extends Model
     public function uploadable()
     {
         return $this->morphTo();
+    }
+
+    public function getUrlAttribute()
+    {
+        return asset("storage/{$this->file_path}");
     }
 }
