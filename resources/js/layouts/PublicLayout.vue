@@ -136,9 +136,6 @@ const isAdmin = computed(() => auth.value.user && auth.value.user?.is_admin);
                             <Link href="/login">
                                 <Button variant="ghost"> Log in </Button>
                             </Link>
-                            <Link href="/register">
-                                <Button> Register </Button>
-                            </Link>
                         </div>
                     </div>
                 </div>
@@ -206,13 +203,6 @@ const isAdmin = computed(() => auth.value.user && auth.value.user?.is_admin);
                                         href="/login"
                                         class="text-gray-700 transition-colors hover:text-gray-900"
                                         >Login</Link
-                                    >
-                                </li>
-                                <li>
-                                    <Link
-                                        href="/register"
-                                        class="text-gray-700 transition-colors hover:text-gray-900"
-                                        >Register</Link
                                     >
                                 </li>
                             </template>
